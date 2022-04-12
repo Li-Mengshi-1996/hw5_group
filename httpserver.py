@@ -29,6 +29,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         code,content = get_content(8080, self.path)
+        self.wfile.write(code)
         self.wfile.write(content)
 
 
