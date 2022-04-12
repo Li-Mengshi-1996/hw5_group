@@ -2,10 +2,12 @@ from http.server import *
 import urllib.request
 import sys
 
+ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 
-def get_content(server_name, port, path):
+
+def get_content(port, path):
     try:
-        url = "http://" + server_name + ":" + str(port) + path
+        url = "http://" + ORIGIN + ":" + str(port) + path
         req = urllib.request.Request(url)
 
         with urllib.request.urlopen(req) as response:
@@ -13,6 +15,8 @@ def get_content(server_name, port, path):
     except:
         return b'404', b''
 
+
+cache = dict()
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -24,7 +28,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header('content-type', 'text/html')
         self.end_headers()
 
-        self.wfile.write("Hello Conor".encode())
+        code,content = get_content(8080, self.path)
+        self.wfile.write(code)
+        self.wfile.write(content)
 
 
 def main():
@@ -37,7 +43,6 @@ def main():
     except KeyboardInterrupt:
         server.server_close()
         return
-
 
     # code, content = get_content('cs5700cdnorigin.ccs.neu.edu', 8080, '/')
     # print(content)
