@@ -72,3 +72,23 @@ def build_response(data):
 
     return
 
+
+
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@cs5700cdnproject.ccs.neu.edu
+
+# dns node
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-dns.5700.network
+
+# replica
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-a.5700.network
+
+# ./deployCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+# ./runCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+# ./stopCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+
+# ps aux | grep li_huang.*dnsserver | grep -v grep | awk '{ print $2 }'
+
+# ssh mengshi@login.khoury.northeastern.edu
+# ssh mengshi@cs5700cdnproject.ccs.neu.edu
+
+# dig @45.33.90.91 -p 40004 cs5700cdn.example.com

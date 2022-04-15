@@ -1,0 +1,81 @@
+#!/usr/bin/python3
+from http.server import *
+import urllib.request
+import sys
+
+ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+
+
+class Cache:
+    def __init__(self):
+        self.cache_dict = dict()
+        self.size = 20 * 1024 * 1024
+
+    def add(self, path, content):
+        self.cache_dict[path] = content
+
+        if sys.getsizeof(self.cache_dict) <= self.size:
+            return
+        else:
+            # Do something
+            return
+
+    def get(self, path):
+        if path in self.cache_dict.keys():
+            return self.cache_dict[path]
+        else:
+            return None
+
+    def init_dict(self):
+        return
+
+
+cache = Cache()
+
+
+def get_content(port, path):
+    try:
+        url = "http://" + ORIGIN + ":" + str(port) + path
+        req = urllib.request.Request(url)
+
+        with urllib.request.urlopen(req) as response:
+            return b'200', response.read()
+    except:
+        return b'404', b''
+
+
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/grading/beacon":
+            self.send_response(204)
+            return
+        self.send_response(200)
+        self.send_header('content-type', 'text/html')
+        self.end_headers()
+
+        content = cache.get(self.path)
+        if content is None:
+            code, content = get_content(8080, self.path)
+            cache.add(self.path, content)
+            self.wfile.write(content)
+        else:
+            self.wfile.write(content)
+
+
+def main():
+    port = int(sys.argv[2])
+    origin = sys.argv[4]
+    server = HTTPServer(('0.0.0.0', port), RequestHandler)
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        server.server_close()
+        return
+
+    # code, content = get_content(8080, '/')
+    # print(content)
+    # print(code)
+
+
+main()

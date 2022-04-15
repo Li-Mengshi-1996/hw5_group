@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from http.server import *
 import urllib.request
 import sys
@@ -34,19 +35,19 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    port = int(sys.argv[2])
-    origin = sys.argv[4]
-    server = HTTPServer(('0.0.0.0', port), RequestHandler)
+    # port = int(sys.argv[2])
+    # origin = sys.argv[4]
+    # server = HTTPServer(('0.0.0.0', port), RequestHandler)
+    #
+    # try:
+    #     server.serve_forever()
+    # except KeyboardInterrupt:
+    #     server.server_close()
+    #     return
 
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        server.server_close()
-        return
-
-    # code, content = get_content('cs5700cdnorigin.ccs.neu.edu', 8080, '/')
-    # print(content)
-    # print(code)
+    code, content = get_content(8080, '/')
+    print(content)
+    print(code)
 
 
 main()

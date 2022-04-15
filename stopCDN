@@ -1,0 +1,61 @@
+#!/usr/bin/python3
+
+import os
+import argparse
+
+def find_pid(result):
+    flag = False
+
+    for item in result:
+        if item == "" and flag == False:
+            flag = True
+        if item != "" and flag:
+            return item
+
+    return None
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Start CDN')
+    parser.add_argument('-p', type=int, required=True, metavar='port')
+    parser.add_argument('-o', type=str, required=True, metavar='origin')
+    parser.add_argument('-n', type=str, required=True, metavar='name')
+    parser.add_argument('-u', type=str, required=True, metavar='username')
+    parser.add_argument('-i', type=str, required=True, metavar='keyfile')
+
+    args = parser.parse_args()
+
+    # build_server = "cs5700cdnproject.ccs.neu.edu"
+    # build_server = "p5-http-a.5700.network"
+
+    dns_node = "p5-dns.5700.network"
+    replica_servers = ["p5-http-a.5700.network"]
+
+    ssh_command = 'ssh -i {} {}@{} "ps aux | grep li_huang.*dnsserver | grep -v grep"'.format(args.i, args.u, dns_node)
+    result = os.popen(ssh_command).read().split(" ")
+
+    try:
+        num = int(find_pid(result))
+        ssh_command = 'ssh -i {} {}@{} "kill -9 {}"'.format(args.i, args.u, dns_node, num)
+        os.system(ssh_command)
+        print("DNS closed")
+    except:
+        print("No DNS running.")
+
+    for replica in replica_servers:
+        ssh_command = 'ssh -i {} {}@{} "ps aux | grep li_huang.**httpserver | grep -v grep"'.format(args.i, args.u,
+                                                                                                    replica)
+
+        result = os.popen(ssh_command).read().split(" ")
+        try:
+            # print(result)
+            num = int(find_pid(result))
+            ssh_command = 'ssh -i {} {}@{} "kill -9 {}"'.format(args.i, args.u, replica, num)
+            os.system(ssh_command)
+            print(replica + " closed.")
+        except:
+            print("No HTTP running.")
+
+
+
+main()
