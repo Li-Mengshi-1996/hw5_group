@@ -13,6 +13,34 @@ CDN_MAPPINGS = [
         'latitude':'33.798458099365234',
         'longitude':'-84.3882827758789'
     }
+    # {
+    #     'hostname':'p5-http-b.5700.network',
+    #     'ip_address':'50.117.41.109',
+    #     'region':'Arctic',
+    #     'latitude':'-71.56731',
+    #     'longitude':'-5.46090'
+    # },
+    # {
+    #     'hostname':'p5-http-c.5700.network',
+    #     'ip_address':'50.118.41.109',
+    #     'region':'Afreca',
+    #     'latitude':'-24.55842',
+    #     'longitude':'-43.72558'
+    # },
+    # {
+    #     'hostname':'p5-http-d.5700.network',
+    #     'ip_address':'50.119.41.109',
+    #     'region':'Australia',
+    #     'latitude':'-6.98804',
+    #     'longitude':'136.92702'
+    # },
+    # {
+    #     'hostname':'p5-http-e.5700.network',
+    #     'ip_address':'50.120.41.109',
+    #     'region':'China',
+    #     'latitude':'37.73839',
+    #     'longitude':'90.67498'
+    # }
 ]
 
 def get_geoLocation(ip):
@@ -22,14 +50,16 @@ def get_geoLocation(ip):
     :param ip: The IP address of the source
     :return: The latitude and longitude of the IP address.
     """
-    source_ip2=str.encode(ip)
+    # source_ip2=str.encode(ip)
     try:
-        output_stream=os.popen('curl -u "708079:xYVsrhhTQiHs9b0M" "https://geolite.info/geoip/v2.1/city/'+source_ip2+'?pretty"')
+        output_stream=os.popen('curl -u "708079:xYVsrhhTQiHs9b0M" "https://geolite.info/geoip/v2.1/city/'+ip+'?pretty"')
         json_str=json.loads(output_stream.read().strip())
+        # print (json_str)
+        output_stream.close()
         latitude= (json_str['location']['latitude'])
         longitude=(json_str['location']['longitude'])
-        return latitude, longitude
-    except Exception as e:
+        return float(latitude), float(longitude)
+    except:
         return None, None
 
 def get_geo_distance(lat1,lon1,lat2,lon2):
@@ -64,16 +94,28 @@ def get_nearest_cdn(source_ip):
     :return: The IP address of the nearest CDN
     """
     latitude,longitude = get_geoLocation(source_ip)
+    # print(latitude,longitude)
     if latitude is None or longitude is None:
         return CDN_MAPPINGS[0]['ip_address']
     best_dist=None
     best_cdn=None
     for c in CDN_MAPPINGS:
-        dist = get_geo_distance(latitude,longitude,c['latitude'],c['longitude'])
+        dist = get_geo_distance(latitude,longitude,float(c['latitude']),float(c['longitude']))
         if not best_dist or best_dist > dist:
             best_dist = dist
             best_cdn = c['ip_address']
     return best_cdn
-
-# result = get_nearest_cdn("173.76.190.67")
-# print (result)
+# ip_lists = ["130.73.7.57",
+#             "222.38.200.156",
+#             "113.245.213.178",
+#             "8.146.79.254",
+#             "0.48.68.211",
+#             "15.172.103.61",
+#             "115.180.41.163",
+#             "190.142.254.161",
+#             "37.219.97.168",
+#             "79.170.133.74"
+#             ]
+# for ips in ip_lists:
+#     result = get_nearest_cdn(ips)
+#     print (result)
