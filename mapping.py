@@ -1,8 +1,9 @@
 from cdn_info import MAPS
 # from ipaddress import ip_network,ip_address
-import os
+# import os
 import json
 import math
+import requests
 
 UNKNOWN = 'Unknown'
 CDN_MAPPINGS = [
@@ -51,16 +52,28 @@ def get_geoLocation(ip):
     :return: The latitude and longitude of the IP address.
     """
     # source_ip2=str.encode(ip)
+    # Method1: Use Python requests
     try:
-        output_stream=os.popen('curl -u "708079:xYVsrhhTQiHs9b0M" "https://geolite.info/geoip/v2.1/city/'+ip+'?pretty"')
-        json_str=json.loads(output_stream.read().strip())
-        # print (json_str)
-        output_stream.close()
-        latitude= (json_str['location']['latitude'])
-        longitude=(json_str['location']['longitude'])
+        url = ('https://geolite.info/geoip/v2.1/city/'+ip+'?pretty')
+        response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+        json_str = json.loads(response)
+        latitude = json_str['location']['latitude']
+        longitude = json_str['location']['longitude']
         return float(latitude), float(longitude)
     except:
         return None, None
+    
+    # Method2: Use os.popen + curl
+    # try:
+    #     output_stream=os.popen('curl -u "708079:xYVsrhhTQiHs9b0M" "https://geolite.info/geoip/v2.1/city/'+ip+'?pretty"')
+    #     json_str=json.loads(output_stream.read().strip())
+    #     # print (json_str)
+    #     output_stream.close()
+    #     latitude= (json_str['location']['latitude'])
+    #     longitude=(json_str['location']['longitude'])
+    #     return float(latitude), float(longitude)
+    # except:
+    #     return None, None
 
 def get_geo_distance(lat1,lon1,lat2,lon2):
     """
