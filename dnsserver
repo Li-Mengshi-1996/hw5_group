@@ -12,12 +12,11 @@ def build_response(data, addr, domain, cache):
     q_name = str(request.q.qname)
     qt = QTYPE[request.q.qtype]
 
-    if qt == 'A':
-        if q_name == domain or q_name.endswith('.' + domain):
-            if addr[0] not in cache:
-                cache[addr[0]] = get_nearest_cdn(addr[0])
-            ip = cache[addr[0]]
-            reply.add_answer(RR(rname=request.q.qname, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
+    if qt == 'A' and (q_name == domain or q_name.endswith('.' + domain)):
+        if addr[0] not in cache.keys():
+            cache[addr[0]] = get_best_cdn(addr[0])
+        ip = cache[addr[0]]
+        reply.add_answer(RR(rname=request.q.qname, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
 
     return reply.pack()
 
@@ -28,9 +27,6 @@ def receive(sock):
     while True:
         data, addr = sock.recvfrom(1024)
         result += data
-
-        # if len(data) == 0:
-        #     break
 
         if not data or len(data) < 1024:
             break

@@ -32,11 +32,23 @@ def build_response(data):
 # test=[1,2,3,4,5,6]
 #
 # print(sys.getsizeof(test))
-f = open("pageviews.csv")
+# f = open("pageviews.csv")
+#
+# lines = f.readlines()
+#
+# for line in lines:
+#     print(line)
+#     break
 
-lines = f.readlines()
+import csv
+with open('pageviews.csv', newline='') as pages:
+    lines = csv.reader(pages, delimiter=',')
+    i = 0
+    for line in lines:
+        print(line)
 
-for line in lines:
-    print(line)
-    break
+        i += 1
+
+        if i >= 100:
+            break
 

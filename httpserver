@@ -2,6 +2,8 @@
 from http.server import *
 import urllib.request
 import sys
+import csv
+from queue import PriorityQueue
 
 ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 
@@ -9,15 +11,26 @@ ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 class Cache:
     def __init__(self):
         self.cache_dict = dict()
-        self.size = 20 * 1024 * 1024
+        # self.size = 20 * 1024 * 1024
+        self.size = 200000
+        self.freq_dict = self.init_freq()
+        self.pq = PriorityQueue()
 
     def add(self, path, content):
         self.cache_dict[path] = content
 
+        if path not in self.freq_dict.keys():
+            self.pq.put((0, path))
+        else:
+            self.pq.put((self.freq_dict[path], path))
+
         if sys.getsizeof(self.cache_dict) <= self.size:
             return
         else:
-            # Do something
+            while sys.getsizeof(self.cache_dict) > self.size:
+                item = self.pq.get()
+                item_path = item[1]
+                del self.cache_dict[item_path]
             return
 
     def get(self, path):
@@ -26,8 +39,17 @@ class Cache:
         else:
             return None
 
-    def init_dict(self):
-        return
+    def init_freq(self):
+        result = dict()
+
+        with open('pageviews.csv', newline='') as pages:
+            lines = csv.reader(pages, delimiter=',')
+            for line in lines:
+                path = "/" + line[0]
+                freq = int(line[1])
+                result[path] = freq
+
+        return result
 
 
 cache = Cache()

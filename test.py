@@ -92,3 +92,27 @@ def build_response(data):
 # ssh mengshi@cs5700cdnproject.ccs.neu.edu
 
 # dig @45.33.90.91 -p 40004 cs5700cdn.example.com
+
+# scp /Users/mengshi/Desktop/5700/hw5/cdn_info.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/httpserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp ~/.ssh/id_ed25519 mengshi@cs5700cdnproject.ccs.neu.edu:~/.ssh/id_ed25519
+
+# 71.192.200.239
+
+# scamper -c "ping -i 1 -c 1 -S 71.192.200.239" -i 50.116.41.109 -O json
+# scamper -c "ping -i 1 -c 1" -i 71.192.200.239 50.116.41.109 -O json
+# scamper -c "trace -S 71.192.200.239" -i 50.116.41.109
+
+# scamper -c "ping -i 1 -c 1 -S 50.116.41.109" -i 71.192.200.239 -O json
+# scamper -c "trace -d 40004" -i 71.192.200.239
+
+# scamper -c 'ping -c 1 -i 1' -i 50.116.41.109 | awk 'NR==2 {print $7}'|cut -d '=' -f 2
+# #" + ip_address + " |awk 'NR==2 {print $7}'|cut -d '=' -f 2
+
+# sudo scamper -c "ping -i 1 -c 1" -i 50.116.41.109 -O json > file
