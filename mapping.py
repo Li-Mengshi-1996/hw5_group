@@ -1,5 +1,5 @@
 from cdn_info import MAPS
-from ipaddress import ip_network,ip_address
+# from ipaddress import ip_network,ip_address
 import os
 import json
 import math
@@ -75,5 +75,5 @@ def get_nearest_cdn(source_ip):
             best_cdn = c['ip_address']
     return best_cdn
 
-result = get_nearest_cdn("173.76.190.67")
-print (result)
+# result = get_nearest_cdn("173.76.190.67")
+# print (result)
