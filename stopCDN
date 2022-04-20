@@ -29,7 +29,9 @@ def main():
     # build_server = "p5-http-a.5700.network"
 
     dns_node = "p5-dns.5700.network"
-    replica_servers = ["p5-http-a.5700.network"]
+    replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
+                       "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
+                       "p5-http-g.5700.network"]
 
     ssh_command = 'ssh -i {} {}@{} "ps aux | grep li_huang.*dnsserver | grep -v grep"'.format(args.i, args.u, dns_node)
     result = os.popen(ssh_command).read().split(" ")
@@ -38,7 +40,7 @@ def main():
         num = int(find_pid(result))
         ssh_command = 'ssh -i {} {}@{} "kill -9 {}"'.format(args.i, args.u, dns_node, num)
         os.system(ssh_command)
-        print("DNS closed")
+        print("DNS closed.")
     except:
         print("No DNS running.")
 
@@ -54,7 +56,7 @@ def main():
             os.system(ssh_command)
             print(replica + " closed.")
         except:
-            print("No HTTP running.")
+            print(replica + " not running.")
 
 
 

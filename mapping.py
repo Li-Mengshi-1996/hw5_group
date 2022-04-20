@@ -2,6 +2,13 @@ import os
 import json
 import math
 
+DNS_NODE = {
+    'host': "p5-dns.5700.network",
+    'ip': "45.33.90.91",
+    "latitude": 40.738731384277344,
+    "longitude": -74.19452667236328
+}
+
 REPLICA_INFO = [
     {
         'host': "p5-http-a.5700.network",
@@ -9,16 +16,46 @@ REPLICA_INFO = [
         "latitude": 33.798458099365234,
         "longitude": -84.3882827758789
     },
+    {
+        'host': "p5-http-b.5700.network",
+        'ip': "45.33.50.187",
+        "latitude": 37.56698989868164,
+        "longitude": -121.98265838623047
+    },
+    {
+        'host': "p5-http-c.5700.network",
+        'ip': "194.195.121.150",
+        "latitude": 53.810279846191406,
+        "longitude": -1.5444400310516357
+    },
+    {
+        'host': "p5-http-d.5700.network",
+        'ip': "172.104.144.157",
+        "latitude": 39.9488410949707,
+        "longitude": -75.14427947998047
+    },
+    {
+        'host': "p5-http-e.5700.network",
+        'ip': "172.104.110.211",
+        "latitude": 35.69628143310547,
+        "longitude": 139.73855590820312
+    },
+    {
+        'host': "p5-http-f.5700.network",
+        'ip': "88.80.186.80",
+        "latitude": 51.584171295166016,
+        "longitude": -0.10888999700546265
+    },
+    {
+        'host': "p5-http-g.5700.network",
+        'ip': "172.105.55.115",
+        "latitude": 39.9488410949707,
+        "longitude": -75.14427947998047
+    },
 ]
 
-REPLICA_IPS = ["50.116.41.109"]
-
-DNS_NODE = {
-    'host': "p5-dns.5700.network",
-    'ip': "45.33.90.91",
-    "latitude": 40.738731384277344,
-    "longitude": -74.19452667236328
-}
+REPLICA_IPS = ["50.116.41.109", "45.33.50.187", "194.195.121.150", "172.104.144.157", "172.104.110.211",
+               "88.80.186.80", "172.105.55.115"]
 
 #
 # def calculate_dis(lat, lon, replica):
@@ -148,7 +185,7 @@ def get_fastest_ip(source_ip):
 
 
 def get_best_cdn(source_ip):
-    ip = get_fastest_ip(source_ip)
-    # ip = get_nearest_ip(source_ip)
+    # ip = get_fastest_ip(source_ip)
+    ip = get_nearest_ip(source_ip)
 
     return ip

@@ -11,8 +11,8 @@ ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 class Cache:
     def __init__(self):
         self.cache_dict = dict()
-        # self.size = 20 * 1024 * 1024
-        self.size = 200000
+        self.size = 20 * 1024 * 1024
+        # self.size = 200000
         self.freq_dict = self.init_freq()
         self.pq = PriorityQueue()
 
@@ -55,6 +55,19 @@ class Cache:
 cache = Cache()
 
 
+def get_header(port, path):
+    try:
+        url = "http://" + ORIGIN + ":" + str(port) + path
+        req = urllib.request.urlopen(url)
+
+        return req.getheader("Content-Type"), req.getheader("Content-Length"), \
+               req.getheader("Last-Modified"), req.getheader("Accept-Ranges")
+    except:
+        return 'text/html', '0', 'Tue, 06 Apr 2021 21:17:49 GMT', 'bytes'
+
+
+
+
 def get_content(port, path):
     try:
         url = "http://" + ORIGIN + ":" + str(port) + path
@@ -70,9 +83,25 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/grading/beacon":
             self.send_response(204)
+            self.send_header('Server', "CDN Server")
+            self.send_header('Date', self.date_time_string())
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', "5")
+            self.send_header('Last-Modified', self.date_time_string())
+            self.send_header('Connection', 'close')
+            self.send_header('Accept-Ranges', "bytes")
+            self.end_headers()
+            self.wfile.write(b"hello")
             return
         self.send_response(200)
-        self.send_header('content-type', 'text/html')
+        self.send_header('Server', "CDN Server")
+        self.send_header('Date', self.date_time_string())
+        ct, cl, lm, ar = get_header(8080, self.path)
+        self.send_header('Content-Type', ct)
+        self.send_header('Content-Length', cl)
+        self.send_header('Last-Modified', lm)
+        self.send_header('Connection', 'close')
+        self.send_header('Accept-Ranges', ar)
         self.end_headers()
 
         content = cache.get(self.path)
@@ -92,8 +121,9 @@ def main():
     try:
         server.serve_forever()
     except KeyboardInterrupt:
+        pass
+    finally:
         server.server_close()
-        return
 
     # code, content = get_content(8080, '/')
     # print(content)
@@ -101,3 +131,14 @@ def main():
 
 
 main()
+
+
+
+
+
+
+
+
+
+
+

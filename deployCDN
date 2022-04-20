@@ -18,7 +18,9 @@ def main():
     # build_server = "p5-http-a.5700.network"
 
     dns_node = "p5-dns.5700.network"
-    replica_servers = ["p5-http-a.5700.network"]
+    replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
+                       "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
+                       "p5-http-g.5700.network"]
 
     ssh_command = 'ssh -i {} {}@{} "rm -rf ~/li_huang; mkdir li_huang"'.format(args.i,args.u,dns_node)
     os.system(ssh_command)
@@ -29,8 +31,8 @@ def main():
     copy_command = "scp -i {} mapping.py {}@{}:li_huang/mapping.py".format(args.i, args.u, dns_node)
     os.system(copy_command)
 
-    copy_command = "scp -i {} cdn_info.py {}@{}:li_huang/cdn_info.py".format(args.i, args.u, dns_node)
-    os.system(copy_command)
+    # copy_command = "scp -i {} cdn_info.py {}@{}:li_huang/cdn_info.py".format(args.i, args.u, dns_node)
+    # os.system(copy_command)
 
     for replica in replica_servers:
         ssh_command = 'ssh -i {} {}@{} "rm -rf ~/li_huang; mkdir li_huang"'.format(args.i,args.u,replica)
