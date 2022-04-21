@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import requests
 
 DNS_NODE = {
     'host': "p5-dns.5700.network",
@@ -13,49 +14,50 @@ REPLICA_INFO = [
     {
         'host': "p5-http-a.5700.network",
         'ip': "50.116.41.109",
-        "latitude": 33.798458099365234,
-        "longitude": -84.3882827758789
+        "latitude": 33.844,
+        "longitude": -84.4784
     },
     {
         'host': "p5-http-b.5700.network",
         'ip': "45.33.50.187",
-        "latitude": 37.56698989868164,
-        "longitude": -121.98265838623047
+        "latitude": 37.5625,
+        "longitude": -122.0004
     },
     {
         'host': "p5-http-c.5700.network",
         'ip': "194.195.121.150",
-        "latitude": 53.810279846191406,
-        "longitude": -1.5444400310516357
+        "latitude": -33.8715,
+        "longitude": 151.2006
     },
     {
         'host': "p5-http-d.5700.network",
         'ip': "172.104.144.157",
-        "latitude": 39.9488410949707,
-        "longitude": -75.14427947998047
+        "latitude": 50.1188,
+        "longitude": 8.6843
     },
     {
         'host': "p5-http-e.5700.network",
         'ip': "172.104.110.211",
-        "latitude": 35.69628143310547,
-        "longitude": 139.73855590820312
+        "latitude": 35.6893,
+        "longitude": 139.6899
     },
     {
         'host': "p5-http-f.5700.network",
         'ip': "88.80.186.80",
-        "latitude": 51.584171295166016,
-        "longitude": -0.10888999700546265
+        "latitude": 51.5095,
+        "longitude": -0.0955
     },
     {
         'host': "p5-http-g.5700.network",
         'ip': "172.105.55.115",
-        "latitude": 39.9488410949707,
-        "longitude": -75.14427947998047
+        "latitude": 19.0748,
+        "longitude": 72.8856
     },
 ]
 
 REPLICA_IPS = ["50.116.41.109", "45.33.50.187", "194.195.121.150", "172.104.144.157", "172.104.110.211",
                "88.80.186.80", "172.105.55.115"]
+
 
 #
 # def calculate_dis(lat, lon, replica):
@@ -94,15 +96,14 @@ def get_geoLocation(ip):
     :param ip: The IP address of the source
     :return: The latitude and longitude of the IP address.
     """
-    source_ip2 = str.encode(ip)
     try:
-        output_stream = os.popen(
-            'curl -u "708079:xYVsrhhTQiHs9b0M" "https://geolite.info/geoip/v2.1/city/' + ip + '?pretty"')
-        json_str = json.loads(output_stream.read().strip())
-        latitude = (json_str['location']['latitude'])
-        longitude = (json_str['location']['longitude'])
-        return latitude, longitude
-    except Exception as e:
+        url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
+        response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+        json_str = json.loads(response)
+        latitude = json_str['location']['latitude']
+        longitude = json_str['location']['longitude']
+        return float(latitude), float(longitude)
+    except:
         return None, None
 
 
@@ -141,11 +142,15 @@ def get_nearest_ip(source_ip):
     latitude, longitude = get_geoLocation(source_ip)
     if latitude is None or longitude is None:
         return REPLICA_INFO[0]['ip']
-    best_dist = None
+    best_dist = -1
     best_cdn = None
     for c in REPLICA_INFO:
         dist = get_geo_distance(latitude, longitude, c['latitude'], c['longitude'])
-        if not best_dist or best_dist > dist:
+        if best_cdn is None:
+            best_dist = dist
+            best_cdn = c['ip']
+            continue
+        if best_dist > dist:
             best_dist = dist
             best_cdn = c['ip']
     return best_cdn
@@ -187,5 +192,8 @@ def get_fastest_ip(source_ip):
 def get_best_cdn(source_ip):
     # ip = get_fastest_ip(source_ip)
     ip = get_nearest_ip(source_ip)
+
+    # if source_ip == "13.234.54.32":
+    #     return "172.105.55.115"
 
     return ip
