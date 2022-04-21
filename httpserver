@@ -1,0 +1,144 @@
+#!/usr/bin/python3
+from http.server import *
+import urllib.request
+import sys
+import csv
+from queue import PriorityQueue
+
+ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+
+
+class Cache:
+    def __init__(self):
+        self.cache_dict = dict()
+        self.size = 20 * 1024 * 1024
+        # self.size = 200000
+        self.freq_dict = self.init_freq()
+        self.pq = PriorityQueue()
+
+    def add(self, path, content):
+        self.cache_dict[path] = content
+
+        if path not in self.freq_dict.keys():
+            self.pq.put((0, path))
+        else:
+            self.pq.put((self.freq_dict[path], path))
+
+        if sys.getsizeof(self.cache_dict) <= self.size:
+            return
+        else:
+            while sys.getsizeof(self.cache_dict) > self.size:
+                item = self.pq.get()
+                item_path = item[1]
+                del self.cache_dict[item_path]
+            return
+
+    def get(self, path):
+        if path in self.cache_dict.keys():
+            return self.cache_dict[path]
+        else:
+            return None
+
+    def init_freq(self):
+        result = dict()
+
+        with open('pageviews.csv', newline='') as pages:
+            lines = csv.reader(pages, delimiter=',')
+            for line in lines:
+                path = "/" + line[0]
+                freq = int(line[1])
+                result[path] = freq
+
+        return result
+
+
+cache = Cache()
+
+
+def get_header(port, path):
+    try:
+        url = "http://" + ORIGIN + ":" + str(port) + path
+        req = urllib.request.urlopen(url)
+
+        return req.getheader("Content-Type"), req.getheader("Content-Length"), \
+               req.getheader("Last-Modified"), req.getheader("Accept-Ranges")
+    except:
+        return 'text/html', '0', 'Tue, 06 Apr 2021 21:17:49 GMT', 'bytes'
+
+
+
+
+def get_content(port, path):
+    try:
+        url = "http://" + ORIGIN + ":" + str(port) + path
+        req = urllib.request.Request(url)
+
+        with urllib.request.urlopen(req) as response:
+            return b'200', response.read()
+    except:
+        return b'404', b''
+
+
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/grading/beacon":
+            self.send_response(204)
+            self.send_header('Server', "CDN Server")
+            self.send_header('Date', self.date_time_string())
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', "5")
+            self.send_header('Last-Modified', self.date_time_string())
+            self.send_header('Connection', 'close')
+            self.send_header('Accept-Ranges', "bytes")
+            self.end_headers()
+            self.wfile.write(b"hello")
+            return
+        self.send_response(200)
+        self.send_header('Server', "CDN Server")
+        self.send_header('Date', self.date_time_string())
+        ct, cl, lm, ar = get_header(8080, self.path)
+        self.send_header('Content-Type', ct)
+        self.send_header('Content-Length', cl)
+        self.send_header('Last-Modified', lm)
+        self.send_header('Connection', 'close')
+        self.send_header('Accept-Ranges', ar)
+        self.end_headers()
+
+        content = cache.get(self.path)
+        if content is None:
+            code, content = get_content(8080, self.path)
+            cache.add(self.path, content)
+            self.wfile.write(content)
+        else:
+            self.wfile.write(content)
+
+
+def main():
+    port = int(sys.argv[2])
+    origin = sys.argv[4]
+    server = HTTPServer(('0.0.0.0', port), RequestHandler)
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+
+    # code, content = get_content(8080, '/')
+    # print(content)
+    # print(code)
+
+
+main()
+
+
+
+
+
+
+
+
+
+
+

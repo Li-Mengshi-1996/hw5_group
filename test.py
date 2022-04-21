@@ -72,3 +72,62 @@ def build_response(data):
 
     return
 
+
+
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@cs5700cdnproject.ccs.neu.edu
+
+# dns node
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-dns.5700.network
+
+# replica
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-a.5700.network
+
+# ./deployCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+# ./runCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+# ./stopCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
+
+# ps aux | grep li_huang.*dnsserver | grep -v grep | awk '{ print $2 }'
+
+# ssh mengshi@login.khoury.northeastern.edu
+# ssh mengshi@cs5700cdnproject.ccs.neu.edu
+
+# dig @45.33.90.91 -p 40004 cs5700cdn.example.com
+# time ; wget http://p5-http-a.5700.network:40004/-
+# time ; wget http://p5-http-a.5700.network:40004/grading/beacon
+# time ; wget http://p5-http-d.5700.network:40004/-
+
+# scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/httpserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp ~/.ssh/id_ed25519 mengshi@cs5700cdnproject.ccs.neu.edu:~/.ssh/id_ed25519
+
+
+# scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/httpserver mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/Makefile mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/README mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+
+# /course/cs5700sp22/bin/turnin project5-milestone /home/mengshi/CS5700/hw5
+
+# 71.192.200.239
+
+# scamper -c "ping -i 1 -c 1 -S 71.192.200.239" -i 50.116.41.109 -O json
+# scamper -c "ping -i 1 -c 1" -i 71.192.200.239 50.116.41.109 -O json
+# scamper -c "trace -S 71.192.200.239" -i 50.116.41.109
+
+# scamper -c "ping -i 1 -c 1 -S 50.116.41.109" -i 71.192.200.239 -O json
+# scamper -c "trace -d 40004" -i 71.192.200.239
+
+# scamper -c 'ping -c 1 -i 1' -i 50.116.41.109 | awk 'NR==2 {print $7}'|cut -d '=' -f 2
+# #" + ip_address + " |awk 'NR==2 {print $7}'|cut -d '=' -f 2
+
+# sudo scamper -c "ping -i 1 -c 1" -i 50.116.41.109 -O json > file

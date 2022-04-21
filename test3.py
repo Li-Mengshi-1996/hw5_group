@@ -22,7 +22,33 @@ def build_response(data):
     #
     # return reply.pack()
 
-packet = binascii.unhexlify(b'd5ad818000010005000000000377777706676f6f676c6503636f6d0000010001c00c0005000100000005000803777777016cc010c02c0001000100000005000442f95b68c02c0001000100000005000442f95b63c02c0001000100000005000442f95b67c02c0001000100000005000442f95b93')
+# packet = binascii.unhexlify(b'd5ad818000010005000000000377777706676f6f676c6503636f6d0000010001c00c0005000100000005000803777777016cc010c02c0001000100000005000442f95b68c02c0001000100000005000442f95b63c02c0001000100000005000442f95b67c02c0001000100000005000442f95b93')
+#
+# build_response(packet)
 
-build_response(packet)
+# print('"')
+# import sys
+#
+# test=[1,2,3,4,5,6]
+#
+# print(sys.getsizeof(test))
+# f = open("pageviews.csv")
+#
+# lines = f.readlines()
+#
+# for line in lines:
+#     print(line)
+#     break
+
+import csv
+with open('pageviews.csv', newline='') as pages:
+    lines = csv.reader(pages, delimiter=',')
+    i = 0
+    for line in lines:
+        print(line)
+
+        i += 1
+
+        if i >= 100:
+            break
 

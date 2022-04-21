@@ -10,14 +10,13 @@ def build_response(data, addr, domain, cache):
     reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
 
     q_name = str(request.q.qname)
-    q_type = QTYPE[request.q.qtype]
+    qt = QTYPE[request.q.qtype]
 
-    if q_type == 'A' and (q_name == domain or q_name.endswith('.' + domain)):
-        if addr[0] not in cache:
-            cache[addr[0]] = get_nearest_cdn(addr[0])
-
+    if qt == 'A' and (q_name == domain or q_name.endswith('.' + domain)):
+        if addr[0] not in cache.keys():
+            cache[addr[0]] = get_best_cdn(addr[0])
         ip = cache[addr[0]]
-        reply.add_answer(RR(rname=q_name, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
+        reply.add_answer(RR(rname=request.q.qname, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
 
     return reply.pack()
 
@@ -29,7 +28,7 @@ def receive(sock):
         data, addr = sock.recvfrom(1024)
         result += data
 
-        if len(data) == 0:
+        if not data or len(data) < 1024:
             break
     return result, addr
 
@@ -53,8 +52,9 @@ def main():
     try:
         start(sock, name, cache)
     except KeyboardInterrupt:
+        pass
+    finally:
         sock.close()
-        print("Bye")
 
     # print(args.n)
     # print(args.p)

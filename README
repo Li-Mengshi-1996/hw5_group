@@ -1,0 +1,27 @@
+Mengshi Li: dnsserver, httpserver, deployCDN, runCDN, stopCDN
+Jiansong Huang: mapping.py
+
+High-level approach:
+1. In mapping.py, we create some methods to find the best replica server. We use two methods: best replica based on geo location and best replica based on smallest ping time.
+2. In dnsserver, we create a DNS server that can give back user the ip address of the best replica server.
+3. In httpserver, we create a HTTP server that can fetch content from the original host or from the cache in the server.
+
+DNS server:
+1. We get the port and the name from user's input.
+2. Then we bind the port with 0.0.0.0 and create a socket.
+3. We create a function called start that can run forever until got interrupted. And this is our main part.
+4. In the start, we keep receiving from the socket, each time we receive from the socket, we will build a response.
+5. In the response we build, we will use methods in mapping.py to get the ip address of the best replica server.
+6. After we build the response, we will send it back.
+
+HTTP server:
+1. We get the port and the origin host form user's input.
+2. We create a RequestHandler class from BaseHTTPRequestHandler and a Cache class.
+3. In the Cache class, we create a dictionary cache_dict to store the path and related content, a dictionary freq_dict to store path and related frequency and a PriorityQueue pq to store tuples like (frequency, path).
+4. Each time we want to add something to cache_dict, we will check if the size after adding it is over 20 MB, if not then nothing happens. It it's over 20 MB, then we will remove those contents whose paths frequency are low until the size of cache_dict is less or equal to 20 MB.
+5. In RequestHandler class, we overwrite do_GET method, if the path is "/grading/beacon", then we just return with status code 204. If the path is something else, then we will first look up the path in cache_dict, if the path is in cache_dict, we will fetch the content from it and return. If not, we will fetch the content from the original url, try to add the content to cache_dict and return.
+6. We will keep the server running until it's got interrupted.
+
+Challenges:
+1. how to build DNS response.
+2. Create HTTP header in right format.

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+
+port=0
+origin=""
+name=""
+username=""
+keyfile=""
+
+while getopts "p:o:n:u:i:" arg
+do
+    case $arg in
+        p)
+            port="${OPTARG}"
+            ;;
+        o)
+            origin="${OPTARG}"
+            ;;
+        n)
+            name="${OPTARG}"
+            ;;
+        u)
+            username="${OPTARG}"
+            ;;
+        i)
+            keyfile="${OPTARG}"
+            ;;
+        *)
+            echo "Invalid input"
+    esac
+done
+
+# build_server="cs5700cdnproject.ccs.neu.edu"
+build_server="p5-http-a.5700.network"
+
+echo "Deploying to ${build_server}"
+ssh -i ${keyfile} ${username}@${build_server} "mkdir li_huang"
+
