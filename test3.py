@@ -40,15 +40,59 @@ def build_response(data):
 #     print(line)
 #     break
 
-import csv
-with open('pageviews.csv', newline='') as pages:
-    lines = csv.reader(pages, delimiter=',')
-    i = 0
-    for line in lines:
-        print(line)
+# import csv
+# with open('pageviews.csv', newline='') as pages:
+#     lines = csv.reader(pages, delimiter=',')
+#     i = 0
+#     for line in lines:
+#         print(line)
+#
+#         i += 1
+#
+#         if i >= 100:
+#             break
 
-        i += 1
+from dnslib import *
+import sys
+import socket
+import json
+import math
+import requests
 
-        if i >= 100:
-            break
+replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
+                   "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
+                   "p5-http-g.5700.network"]
+
+
+def get_geoLocation(ip):
+    try:
+        url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
+        response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+        json_str = json.loads(response)
+        latitude = json_str['location']['latitude']
+        longitude = json_str['location']['longitude']
+        return float(latitude), float(longitude)
+    except:
+        return None, None
+
+
+def create_replica_info():
+    result = []
+    for host in replica_servers:
+        ip = socket.gethostbyname(host)
+        lat, lon = get_geoLocation(ip)
+        if lat is None or lon is None:
+            lat = 0
+            lon = 0
+
+        temp = {"host": host, "ip": ip, "latitude": lat, "longitude": lon}
+        result.append(temp)
+
+    return result
+
+
+REPLICA_INFO = create_replica_info()
+
+for replica in REPLICA_INFO:
+    print(replica)
 
