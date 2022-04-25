@@ -22,6 +22,12 @@ HTTP server:
 5. In RequestHandler class, we overwrite do_GET method, if the path is "/grading/beacon", then we just return with status code 204. If the path is something else, then we will first look up the path in cache_dict, if the path is in cache_dict, we will fetch the content from it and return. If not, we will fetch the content from the original url, try to add the content to cache_dict and return.
 6. We will keep the server running until it's got interrupted.
 
+mapping.py:
+1. We first set the actual IP addresses and geo locations for all replica_servers by geoIP API.
+2. Then we use "requests" package of Python to make a HTTP request to get the actual geo location for the client. Because the response is in JSON format, we need "json" package to extract the geo location.
+3. Then we use Haversine formula to calculate the actual distance between the client and the replica servers, then return the best replica server IP. If no best replica server was found, we will return the first one.
+
 Challenges:
 1. how to build DNS response.
 2. Create HTTP header in right format.
+3. How to match the nearest CDN node as fast as possible. How to reduce the mapping time (API or scamper, python compilation time, etc.)
