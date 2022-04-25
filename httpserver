@@ -4,7 +4,7 @@ import urllib.request
 import sys
 import csv
 from queue import PriorityQueue
-
+import os
 
 ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 
@@ -56,17 +56,6 @@ class Cache:
 cache = Cache()
 
 
-def get_header(port, path):
-    try:
-        url = "http://" + ORIGIN + ":" + str(port) + path
-        req = urllib.request.urlopen(url)
-
-        return req.getheader("Content-Type"), req.getheader("Content-Length"), \
-               req.getheader("Last-Modified"), req.getheader("Accept-Ranges")
-    except:
-        return 'text/html', '0', 'Tue, 06 Apr 2021 21:17:49 GMT', 'bytes'
-
-
 def get_content(port, path):
     try:
         url = "http://" + ORIGIN + ":" + str(port) + path
@@ -90,17 +79,15 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             # self.wfile.write(b"hello")
             return
-        if self.path == "/":
-            self.send_response(301)
-            self.send_header('Server', "CDN Server")
-            self.send_header('Date', self.date_time_string())
+        if self.path.startswith("/li_huang"):
+            temp = self.path
+            ip = temp.replace("/li_huang/", "")
+            command = "scamper -c 'ping -c 1 -i 1' -i {}".format(ip)
+            result = os.popen(command).read()
+            self.send_response(200)
             self.send_header('Content-Type', 'text/html')
-            self.send_header('Content-Length', "5")
-            self.send_header('Last-Modified', self.date_time_string())
-            self.send_header('Connection', 'close')
-            self.send_header('Accept-Ranges', "bytes")
             self.end_headers()
-            self.wfile.write(b"hello")
+            self.wfile.write(result.encode())
             return
 
         content = cache.get(self.path)
@@ -125,13 +112,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def main():
+    global ORIGIN
     port = int(sys.argv[2])
-    origin = sys.argv[4]
+    ORIGIN = sys.argv[4]
     server = HTTPServer(('0.0.0.0', port), RequestHandler)
 
     try:
         server.serve_forever()
-    except KeyboardInterrupt:
+    except:
         pass
     finally:
         server.server_close()

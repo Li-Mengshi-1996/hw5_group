@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+
+import socketserver
+import os
+import sys
+
+
+class MyHandler(socketserver.BaseRequestHandler):
+
+    def handle(self):
+        ip = self.request.recv(1024).decode()
+
+        try:
+            command = "scamper -c 'ping -c 1 -i 1' -i {}".format(ip)
+            result = os.popen(command).read()
+            latency = str(result).encode()
+        except:
+            latency = b'error'
+
+        self.request.sendall(latency)
+
+        return
+
+
+def main():
+    port = int(sys.argv[1])
+
+    server = socketserver.TCPServer(("", port), MyHandler)
+
+    try:
+        server.serve_forever()
+    except:
+        pass
+    finally:
+        server.server_close()
+
+
+main()

@@ -18,24 +18,26 @@ import json
 # result = json.loads(os.popen(command).read())
 # print(result['location'])
 
-# import urllib.request
-# from http.client import *
-#
-# ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
-#
-#
-# def get_content(port, path):
-#     url = "http://" + ORIGIN + ":" + str(port) + path
-#     req = urllib.request.urlopen(url)
-#
-#     print(req.getheaders())
-#     print(req.getheader("Content-Type"))
-#     print(req.getheader("Content-Length"))
-#     print(req.getheader("Last-Modified"))
-#     print(req.getheader("Accept-Ranges"))
-#     print(len(req.read()))
-#
-# get_content(8080, "/-")
+import urllib.request
+from http.client import *
+
+ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+
+
+def get_content(port, path):
+    # url = "http://" + ORIGIN + ":" + str(port) + path
+    url = "http://p5-http-b.5700.network:40004/-"
+    req = urllib.request.urlopen(url)
+
+    # print(req.getheaders())
+    # print(req.getheader("Content-Type"))
+    # print(req.getheader("Content-Length"))
+    # print(req.getheader("Last-Modified"))
+    # print(req.getheader("Accept-Ranges"))
+    print(req.read())
+
+
+get_content(40004, "/-")
 
 import socket
 
@@ -86,8 +88,8 @@ REPLICA_INFO = [
     },
 ]
 
-for replica in REPLICA_INFO:
-    temp = socket.gethostbyname(replica["host"])
-
-    if temp != replica["ip"]:
-        print(replica)
+# for replica in REPLICA_INFO:
+#     temp = socket.gethostbyname(replica["host"])
+#
+#     if temp != replica["ip"]:
+#         print(replica)

@@ -1,7 +1,76 @@
 #!/usr/bin/python3
 from dnslib import *
-from mapping import *
 import sys
+import socket
+import json
+import math
+import requests
+
+replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
+                   "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
+                   "p5-http-g.5700.network"]
+
+
+def get_geoLocation(ip):
+    try:
+        url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
+        response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+        json_str = json.loads(response)
+        latitude = json_str['location']['latitude']
+        longitude = json_str['location']['longitude']
+        return float(latitude), float(longitude)
+    except:
+        return None, None
+
+
+def create_replica_info():
+    result = []
+    for host in replica_servers:
+        ip = socket.gethostbyname(host)
+        lat, lon = get_geoLocation(ip)
+        if lat is None or lon is None:
+            lat = 0
+            lon = 0
+
+        temp = {"host": host, "ip": ip, "latitude": lat, "longitude": lon}
+        result.append(temp)
+
+    return result
+
+
+REPLICA_INFO = create_replica_info()
+
+
+def get_geo_distance(lat1, lon1, lat2, lon2):
+    r = abs(lon1 - lon2)
+    if r > 180:
+        r = 360 - r
+
+    return math.pow(lat1 - lat2, 2) + math.pow(r, 2)
+
+
+def get_nearest_ip(source_ip):
+    latitude, longitude = get_geoLocation(source_ip)
+    if latitude is None or longitude is None:
+        return REPLICA_INFO[0]['ip']
+    best_dist = -1
+    best_cdn = None
+    for c in REPLICA_INFO:
+        dist = get_geo_distance(latitude, longitude, c['latitude'], c['longitude'])
+        if best_cdn is None:
+            best_dist = dist
+            best_cdn = c['ip']
+            continue
+        if best_dist > dist:
+            best_dist = dist
+            best_cdn = c['ip']
+    return best_cdn
+
+
+def get_best_cdn(source_ip):
+    ip = get_nearest_ip(source_ip)
+
+    return ip
 
 
 def build_response(data, addr, domain, cache):
@@ -51,7 +120,7 @@ def main():
 
     try:
         start(sock, name, cache)
-    except KeyboardInterrupt:
+    except:
         pass
     finally:
         sock.close()

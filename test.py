@@ -81,6 +81,9 @@ def build_response(data):
 
 # replica
 # ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-a.5700.network
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-b.5700.network
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-c.5700.network
+# ssh -i ~/.ssh/id_ed25519.pub li_huang@p5-http-d.5700.network
 
 # ./deployCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
 # ./runCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub

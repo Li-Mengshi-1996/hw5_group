@@ -2,6 +2,8 @@ import os
 import json
 import math
 import requests
+import socket
+import urllib.request
 
 DNS_NODE = {
     'host': "p5-dns.5700.network",
@@ -9,7 +11,14 @@ DNS_NODE = {
     "latitude": 40.738731384277344,
     "longitude": -74.19452667236328
 }
-
+# REPLICA_INFO = [
+#     {
+#         'host': "p5-http-b.5700.network",
+#         'ip': "45.33.50.187",
+#         "latitude": 37.5625,
+#         "longitude": -122.0004
+#     },
+# ]
 REPLICA_INFO = [
     {
         'host': "p5-http-a.5700.network",
@@ -90,12 +99,6 @@ REPLICA_IPS = ["50.116.41.109", "45.33.50.187", "194.195.121.150", "172.104.144.
 #         return REPLICA_INFO[0]['ip']
 
 def get_geoLocation(ip):
-    """
-    It takes an IP address as input, and returns the latitude and longitude of the IP address
-
-    :param ip: The IP address of the source
-    :return: The latitude and longitude of the IP address.
-    """
     try:
         url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
         response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
@@ -118,17 +121,21 @@ def get_geo_distance(lat1, lon1, lat2, lon2):
     :param lon2: longitude of the second point
     :return: The distance between two points on the earth.
     """
-    R = 6373.0  # rad of earth
-    lat1 = math.radians(lat1)
-    lon1 = math.radians(lon1)
-    lat2 = math.radians(lat2)
-    lon2 = math.radians(lon2)
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    # Haversine formula
-    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c
+    # R = 6373.0  # rad of earth
+    # lat1 = math.radians(lat1)
+    # lon1 = math.radians(lon1)
+    # lat2 = math.radians(lat2)
+    # lon2 = math.radians(lon2)
+    # dlat = lat2 - lat1
+    # dlon = lon2 - lon1
+    # # Haversine formula
+    # a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    # c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    r = abs(lon1 - lon2)
+    if r > 180:
+        r = 360 - r
+
+    return math.pow(lat1 - lat2, 2) + math.pow(r, 2)
 
 
 def get_nearest_ip(source_ip):
@@ -156,37 +163,110 @@ def get_nearest_ip(source_ip):
     return best_cdn
 
 
+def get_rtt(str):
+    left = str.find("time=")
+    right = str.find(" ms")
+
+    rtt = str[left + 5: right]
+    return float(rtt)
+
+
 def get_fastest_ip(source_ip):
-    min_time = -1
-    min_ip = None
-
-    file = open("result.txt", "w")
-
-    for ip in REPLICA_IPS:
+    best_rtt = -1
+    best_ip = None
+    for replica in REPLICA_INFO:
         try:
-            command = "scamper -c 'ping -c 1 -i 1' -i {} | awk 'NR==2 {}'|cut -d '=' -f 2".format(ip, "{print $7}")
-            result = os.popen(command).read()
-            file.write(result)
+            host = replica["host"]
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((host, 12345))
+            sock.send(source_ip.encode())
+            data = sock.recv(1024).decode()
+            sock.close()
 
-            time = float(result)
+            if data == "error":
+                continue
 
-            if min_time == -1:
-                min_time = time
-                min_ip = ip
+            rtt = get_rtt(data)
+
+            if best_ip is None:
+                best_rtt = rtt
+                best_ip = replica["ip"]
             else:
-                if time < min_time:
-                    min_time = time
-                    min_ip = ip
+                if best_rtt > rtt:
+                    best_rtt = rtt
+                    best_ip = replica["ip"]
         except:
+            print("XXXXX")
             continue
 
-    if min_ip is None:
-        file.write("fail")
-        file.close()
-        return REPLICA_IPS[0]
+    if best_ip is None:
+        return REPLICA_INFO[0]["ip"]
     else:
-        file.close()
-        return min_ip
+        return best_ip
+
+    # min_time = -1
+    # min_ip = None
+    #
+    # file = open("result.txt", "w")
+    #
+    # for ip in REPLICA_IPS:
+    #     try:
+    #         command = "scamper -c 'ping -c 1 -i 1' -i {} | awk 'NR==2 {}'|cut -d '=' -f 2".format(ip, "{print $7}")
+    #         result = os.popen(command).read()
+    #         file.write(result)
+    #
+    #         time = float(result)
+    #
+    #         if min_time == -1:
+    #             min_time = time
+    #             min_ip = ip
+    #         else:
+    #             if time < min_time:
+    #                 min_time = time
+    #                 min_ip = ip
+    #     except:
+    #         continue
+    #
+    # if min_ip is None:
+    #     file.write("fail")
+    #     file.close()
+    #     return REPLICA_IPS[0]
+    # else:
+    #     file.close()
+    #     return min_ip
+
+
+def active_measurement(source_ip):
+    best_rtt = -1
+    best_ip = None
+
+    for replica in REPLICA_INFO:
+        host = replica['host']
+
+        try:
+            url = "http://{}:40004/li_huang/{}".format(host, source_ip)
+            req = urllib.request.urlopen(url)
+            data = req.read().decode()
+
+            rtt = get_rtt(data)
+
+            if best_ip is None:
+                best_rtt = rtt
+                best_ip = replica["ip"]
+            else:
+                if best_rtt > rtt:
+                    best_rtt = rtt
+                    best_ip = replica["ip"]
+        except:
+            print("XXXXX")
+            continue
+
+    if best_ip is None:
+        return REPLICA_INFO[0]["ip"]
+    else:
+        return best_ip
+
+
 
 
 def get_best_cdn(source_ip):
