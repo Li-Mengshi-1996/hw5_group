@@ -18,20 +18,76 @@ import json
 # result = json.loads(os.popen(command).read())
 # print(result['location'])
 
-import urllib.request
-from http.client import *
+# import urllib.request
+# from http.client import *
+#
+# ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+#
+#
+# def get_content(port, path):
+#     url = "http://" + ORIGIN + ":" + str(port) + path
+#     req = urllib.request.urlopen(url)
+#
+#     print(req.getheaders())
+#     print(req.getheader("Content-Type"))
+#     print(req.getheader("Content-Length"))
+#     print(req.getheader("Last-Modified"))
+#     print(req.getheader("Accept-Ranges"))
+#     print(len(req.read()))
+#
+# get_content(8080, "/-")
 
-ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+import socket
 
+# print(socket.gethostbyname("p5-http-a.5700.network"))
 
-def get_content(port, path):
-    url = "http://" + ORIGIN + ":" + str(port) + path
-    req = urllib.request.urlopen(url)
+REPLICA_INFO = [
+    {
+        'host': "p5-http-a.5700.network",
+        'ip': "50.116.41.109",
+        "latitude": 33.844,
+        "longitude": -84.4784
+    },
+    {
+        'host': "p5-http-b.5700.network",
+        'ip': "45.33.50.187",
+        "latitude": 37.5625,
+        "longitude": -122.0004
+    },
+    {
+        'host': "p5-http-c.5700.network",
+        'ip': "194.195.121.150",
+        "latitude": -33.8715,
+        "longitude": 151.2006
+    },
+    {
+        'host': "p5-http-d.5700.network",
+        'ip': "172.104.144.157",
+        "latitude": 50.1188,
+        "longitude": 8.6843
+    },
+    {
+        'host': "p5-http-e.5700.network",
+        'ip': "172.104.110.211",
+        "latitude": 35.6893,
+        "longitude": 139.6899
+    },
+    {
+        'host': "p5-http-f.5700.network",
+        'ip': "88.80.186.80",
+        "latitude": 51.5095,
+        "longitude": -0.0955
+    },
+    {
+        'host': "p5-http-g.5700.network",
+        'ip': "172.105.55.115",
+        "latitude": 19.0748,
+        "longitude": 72.8856
+    },
+]
 
-    print(req.getheaders())
-    print(req.getheader("Content-Type"))
-    print(req.getheader("Content-Length"))
-    print(req.getheader("Last-Modified"))
-    print(req.getheader("Accept-Ranges"))
+for replica in REPLICA_INFO:
+    temp = socket.gethostbyname(replica["host"])
 
-get_content(8080, "/-")
+    if temp != replica["ip"]:
+        print(replica)

@@ -5,44 +5,91 @@ import json
 import math
 import requests
 
-UNKNOWN = 'Unknown'
-CDN_MAPPINGS = [
+DNS_NODE = {
+    'host': "p5-dns.5700.network",
+    'ip': "45.33.90.91",
+    "latitude": 40.738731384277344,
+    "longitude": -74.19452667236328
+}
+
+REPLICA_INFO = [
     {
-        'hostname':'p5-http-a.5700.network',
-        'ip_address':'50.116.41.109',
-        'region':'US-Georgia',
-        'latitude':'33.798458099365234',
-        'longitude':'-84.3882827758789'
+        'host': "p5-http-a.5700.network",
+        'ip': "50.116.41.109",
+        "latitude": 33.844,
+        "longitude": -84.4784
     },
     {
-        'hostname':'p5-http-b.5700.network',
-        'ip_address':'50.117.41.109',
-        'region':'Arctic',
-        'latitude':'-71.56731',
-        'longitude':'-5.46090'
+        'host': "p5-http-b.5700.network",
+        'ip': "45.33.50.187",
+        "latitude": 37.5625,
+        "longitude": -122.0004
     },
     {
-        'hostname':'p5-http-c.5700.network',
-        'ip_address':'50.118.41.109',
-        'region':'Afreca',
-        'latitude':'-24.55842',
-        'longitude':'-43.72558'
+        'host': "p5-http-c.5700.network",
+        'ip': "194.195.121.150",
+        "latitude": -33.8715,
+        "longitude": 151.2006
     },
     {
-        'hostname':'p5-http-d.5700.network',
-        'ip_address':'50.119.41.109',
-        'region':'Australia',
-        'latitude':'-6.98804',
-        'longitude':'136.92702'
+        'host': "p5-http-d.5700.network",
+        'ip': "172.104.144.157",
+        "latitude": 50.1188,
+        "longitude": 8.6843
     },
     {
-        'hostname':'p5-http-e.5700.network',
-        'ip_address':'50.120.41.109',
-        'region':'China',
-        'latitude':'37.73839',
-        'longitude':'90.67498'
+        'host': "p5-http-e.5700.network",
+        'ip': "172.104.110.211",
+        "latitude": 35.6893,
+        "longitude": 139.6899
+    },
+    {
+        'host': "p5-http-f.5700.network",
+        'ip': "88.80.186.80",
+        "latitude": 51.5095,
+        "longitude": -0.0955
+    },
+    {
+        'host': "p5-http-g.5700.network",
+        'ip': "172.105.55.115",
+        "latitude": 19.0748,
+        "longitude": 72.8856
     }
 ]
+
+REPLICA_IPS = ["50.116.41.109", "45.33.50.187", "194.195.121.150", "172.104.144.157", "172.104.110.211",
+               "88.80.186.80", "172.105.55.115"]
+
+
+#
+# def calculate_dis(lat, lon, replica):
+#     replica_lat = replica['latitude']
+#     replica_lon = replica['longitude']
+#
+#     return math.pow(lat - replica_lat, 2) + math.pow(lon - replica_lon, 2)
+#
+#
+# def get_geo_nearest_ip(source_ip):
+#     try:
+#         command = 'curl -u "707935:MJTXPGwfhnZh5PmK" "https://geolite.info/geoip/v2.1/city/{}?pretty"'.format(source_ip)
+#         geo = json.loads(os.popen(command).read())
+#         lat = geo['location']['latitude']
+#         lon = geo['location']['longitude']
+#
+#         min_dis = calculate_dis(lat, lon, REPLICA_INFO[0])
+#         min_replica = REPLICA_INFO[0]
+#
+#         for i in range(1, len(REPLICA_INFO)):
+#             current_dis = calculate_dis(lat, lon, REPLICA_INFO[i])
+#
+#             if current_dis < min_dis:
+#                 min_dis = current_dis
+#                 min_replica = REPLICA_INFO[i]
+#
+#         return min_replica['ip']
+#
+#     except:
+#         return REPLICA_INFO[0]['ip']
 
 def get_geoLocation(ip):
     """
@@ -51,10 +98,8 @@ def get_geoLocation(ip):
     :param ip: The IP address of the source
     :return: The latitude and longitude of the IP address.
     """
-    # source_ip2=str.encode(ip)
-    # Method1: Use Python requests
     try:
-        url = ('https://geolite.info/geoip/v2.1/city/'+ip+'?pretty')
+        url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
         response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
         json_str = json.loads(response)
         latitude = json_str['location']['latitude']
@@ -96,7 +141,6 @@ def get_geo_distance(lat1,lon1,lat2,lon2):
     # Haversine formula
     a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    print (R * c)
     return (R * c)
 
 def get_geo_distance2(lat1,lon1,lat2,lon2):
@@ -112,53 +156,60 @@ def get_nearest_ip(source_ip):
     """
     latitude, longitude = get_geoLocation(source_ip)
     if latitude is None or longitude is None:
-        return CDN_MAPPINGS[0]['ip_address']
-    best_dist = 99999
+        return REPLICA_INFO[0]['ip']
+    best_dist = -1
     best_cdn = None
-    for c in CDN_MAPPINGS:
-        dist = get_geo_distance(latitude, longitude, float(c['latitude']), float(c['longitude']))
+    for c in REPLICA_INFO:
+        dist = get_geo_distance(latitude, longitude, c['latitude'], c['longitude'])
+        if best_cdn is None:
+            best_dist = dist
+            best_cdn = c['ip']
+            continue
         if best_dist > dist:
             best_dist = dist
-            best_cdn = c['ip_address']
+            best_cdn = c['ip']
     return best_cdn
 
 
-def get_fastest_ip(source_ip):
-    min_time = -1
-    min_ip = None
+# def get_fastest_ip(source_ip):
+#     min_time = -1
+#     min_ip = None
 
-    file = open("result.txt", "w")
+#     file = open("result.txt", "w")
 
-    for ip in CDN_MAPPINGS:
-        try:
-            command = "scamper -c 'ping -c 1 -i 1' -i {} | awk 'NR==2 {}'|cut -d '=' -f 2".format(ip, "{print $7}")
-            result = os.popen(command).read()
-            file.write(result)
+#     for ip in CDN_MAPPINGS:
+#         try:
+#             command = "scamper -c 'ping -c 1 -i 1' -i {} | awk 'NR==2 {}'|cut -d '=' -f 2".format(ip, "{print $7}")
+#             result = os.popen(command).read()
+#             file.write(result)
 
-            time = float(result)
+#             time = float(result)
 
-            if min_time == -1:
-                min_time = time
-                min_ip = ip
-            else:
-                if time < min_time:
-                    min_time = time
-                    min_ip = ip
-        except:
-            continue
+#             if min_time == -1:
+#                 min_time = time
+#                 min_ip = ip
+#             else:
+#                 if time < min_time:
+#                     min_time = time
+#                     min_ip = ip
+#         except:
+#             continue
 
-    if min_ip is None:
-        file.write("fail")
-        file.close()
-        return CDN_MAPPINGS[0]
-    else:
-        file.close()
-        return min_ip
+#     if min_ip is None:
+#         file.write("fail")
+#         file.close()
+#         return CDN_MAPPINGS[0]
+#     else:
+#         file.close()
+#         return min_ip
 
 
 def get_best_cdn(source_ip):
     # ip = get_fastest_ip(source_ip)
     ip = get_nearest_ip(source_ip)
+
+    # if source_ip == "13.234.54.32":
+    #     return "172.105.55.115"
 
     return ip
 

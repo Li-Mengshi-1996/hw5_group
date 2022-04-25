@@ -131,3 +131,5 @@ def build_response(data):
 # #" + ip_address + " |awk 'NR==2 {print $7}'|cut -d '=' -f 2
 
 # sudo scamper -c "ping -i 1 -c 1" -i 50.116.41.109 -O json > file
+
+# /course/cs5700sp22/bin/gradesheet
