@@ -91,8 +91,13 @@ def create_replica_info():
     return result
 
 
-REPLICA_INFO = create_replica_info()
+# REPLICA_INFO = create_replica_info()
+#
+# for replica in REPLICA_INFO:
+#     print(replica)
 
-for replica in REPLICA_INFO:
-    print(replica)
+import ipaddress
+
+print(ipaddress.ip_address("50.116.41.109"))
+print(list(ipaddress.ip_network("50.116.32.0/20").hosts()))
 

@@ -45,6 +45,13 @@ def main():
     # except:
     #     print("No DNS running.")
 
+    try:
+        ssh_command = 'ssh -i {} {}@{} "killall -9 -u li_huang /usr/bin/python3"'.format(args.i, args.u, dns_node)
+        os.system(ssh_command)
+        print("DNS closed.")
+    except:
+        print("DNS not running.")
+
     for replica in replica_servers:
         # ssh_command = 'ssh -i {} {}@{} "ps aux | grep li_huang.**httpserver | grep -v grep"'.format(args.i, args.u,
         #                                                                                             replica)

@@ -26,12 +26,12 @@ def main():
     # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver;"'.format(args.i, args.u, dns_node)
     # os.system(ssh_command)
     print("DNS is running.")
-    # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver; ./dnsserver -p {} -n {}" &'.format(args.i,
-    #                                                                                                       args.u,
-    #                                                                                                       dns_node,
-    #                                                                                                       args.p,
-    #                                                                                                       args.n)
-    # os.system(ssh_command)
+    ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver; ./dnsserver -p {} -n {}" &'.format(args.i,
+                                                                                                          args.u,
+                                                                                                          dns_node,
+                                                                                                          args.p,
+                                                                                                          args.n)
+    os.system(ssh_command)
 
     for replica in replica_servers:
         # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x httpserver"'.format(args.i, args.u, replica, args.p,

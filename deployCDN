@@ -23,11 +23,11 @@ def main():
                        "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
                        "p5-http-g.5700.network"]
 
-    # ssh_command = 'ssh -i {} {}@{} "rm -rf ~/li_huang; mkdir li_huang"'.format(args.i, args.u, dns_node)
-    # os.system(ssh_command)
-    #
-    # copy_command = "scp -i {} dnsserver {}@{}:li_huang/dnsserver".format(args.i, args.u, dns_node)
-    # os.system(copy_command)
+    ssh_command = 'ssh -i {} {}@{} "rm -rf ~/li_huang; mkdir li_huang"'.format(args.i, args.u, dns_node)
+    os.system(ssh_command)
+
+    copy_command = "scp -i {} dnsserver {}@{}:li_huang/dnsserver".format(args.i, args.u, dns_node)
+    os.system(copy_command)
     #
     # copy_command = "scp -i {} mapping.py {}@{}:li_huang/mapping.py".format(args.i, args.u, dns_node)
     # os.system(copy_command)
