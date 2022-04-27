@@ -5,6 +5,9 @@ import socket
 import json
 import math
 import requests
+import urllib.request
+import threading
+import time
 
 DNS_NODE = {
     'host': "p5-dns.5700.network",
@@ -17,6 +20,10 @@ replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-
                    "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
                    "p5-http-g.5700.network"]
 
+
+####################################################
+########## Use geolocation to get best ip ##########
+####################################################
 
 def get_geoLocation(ip):
     try:
@@ -46,6 +53,7 @@ def create_replica_info():
 
 
 REPLICA_INFO = create_replica_info()
+source_ip_list = []
 
 
 def get_geo_distance(lat1, lon1, lat2, lon2):
@@ -80,6 +88,89 @@ def get_best_cdn(source_ip):
     return ip
 
 
+###################################################
+########## Use scamper to update best ip ##########
+###################################################
+
+def get_rtt(info):
+    left = info.find("time=")
+    right = info.find(" ms")
+
+    rtt = info[left + 5: right]
+    return float(rtt)
+
+
+def active_measurement(source_ip):
+    best_rtt = -1
+    best_ip = None
+
+    for replica in REPLICA_INFO:
+        host = replica['host']
+
+        try:
+            url = "http://{}:40004/li_huang/{}".format(host, source_ip)
+            req = urllib.request.urlopen(url)
+            data = req.read().decode()
+            # print(data)
+
+            rtt = get_rtt(data)
+
+            if best_ip is None:
+                best_rtt = rtt
+                best_ip = replica["ip"]
+            else:
+                if best_rtt > rtt:
+                    best_rtt = rtt
+                    best_ip = replica["ip"]
+        except:
+            # print("XXXXX")
+            continue
+
+    # if best_ip is None:
+    #     return REPLICA_INFO[0]["ip"]
+
+    return best_ip
+
+
+# aaa = active_measurement("155.33.133.30")
+# print(aaa)
+
+
+def scamper_update(cache, msg):
+    while True:
+        try:
+            ip_count = len(source_ip_list)
+
+            if ip_count == 0:
+                time.sleep(120)
+                continue
+
+            name = str(time.asctime(time.localtime(time.time()))) + ".txt"
+            file = open(name, 'w')
+
+            for i in range(0, ip_count):
+                b_ip = active_measurement(source_ip_list[i])
+                file.write(source_ip_list[i] + "\n")
+                if b_ip is None:
+                    continue
+                # file.write("hello")
+                cache[source_ip_list[i]] = b_ip
+                # file.write(str(type(source_ip_list[i])))
+                # file.write(str(type(b_ip)))
+                file.write(source_ip_list[i] + ": " + b_ip + '\n')
+                # file.write("\n")
+
+            file.close()
+            time.sleep(300)
+        except:
+            time.sleep(300)
+            continue
+
+
+################################
+########## DNS server ##########
+################################
+
 def build_response(data, addr, domain, cache):
     domain = domain + "."
     request = DNSRecord.parse(data)
@@ -91,6 +182,7 @@ def build_response(data, addr, domain, cache):
     if qt == 'A' and (q_name == domain or q_name.endswith('.' + domain)):
         if addr[0] not in cache.keys():
             cache[addr[0]] = get_best_cdn(addr[0])
+            source_ip_list.append(addr[0])
         ip = cache[addr[0]]
         reply.add_answer(RR(rname=request.q.qname, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
 
@@ -125,8 +217,16 @@ def main():
 
     cache = dict()
 
+    threads = []
+    threads.append(threading.Thread(target=start, args=(sock, name, cache)))
+    threads.append(threading.Thread(target=scamper_update, args=(cache, "")))
+
     try:
-        start(sock, name, cache)
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        # start(sock, name, cache)
     except:
         pass
     finally:
@@ -134,6 +234,5 @@ def main():
 
     # print(args.n)
     # print(args.p)
-
 
 main()

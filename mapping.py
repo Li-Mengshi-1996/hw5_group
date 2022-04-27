@@ -163,11 +163,11 @@ def get_nearest_ip(source_ip):
     return best_cdn
 
 
-def get_rtt(str):
-    left = str.find("time=")
-    right = str.find(" ms")
+def get_rtt(info):
+    left = info.find("time=")
+    right = info.find(" ms")
 
-    rtt = str[left + 5: right]
+    rtt = info[left + 5: right]
     return float(rtt)
 
 

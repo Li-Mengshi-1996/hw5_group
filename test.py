@@ -89,6 +89,10 @@ def build_response(data):
 # ./runCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
 # ./stopCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519.pub
 
+# ./deployCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519
+# ./runCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519
+# ./stopCDN -p 40004 -o cs5700cdnorigin.ccs.neu.edu -n cs5700cdn.example.com -u li_huang -i ~/.ssh/id_ed25519
+
 # ps aux | grep li_huang.*dnsserver | grep -v grep | awk '{ print $2 }'
 
 # ssh mengshi@login.khoury.northeastern.edu
@@ -102,11 +106,12 @@ def build_response(data):
 # scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/httpserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
-# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp ~/.ssh/id_ed25519 mengshi@cs5700cdnproject.ccs.neu.edu:~/.ssh/id_ed25519
+
+# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 
 
 # scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
@@ -136,3 +141,5 @@ def build_response(data):
 # sudo scamper -c "ping -i 1 -c 1" -i 50.116.41.109 -O json > file
 
 # /course/cs5700sp22/bin/gradesheet
+
+# scamper -c "ping -i 1 -c 1" -i 155.33.133.30

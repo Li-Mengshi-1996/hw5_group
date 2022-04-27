@@ -66,6 +66,9 @@ def get_content(port, path):
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def log_message(self, str_format, *args):
+        pass
+
     def do_GET(self):
         if self.path == "/grading/beacon":
             self.send_response(204)

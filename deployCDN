@@ -39,9 +39,6 @@ def main():
         copy_command = "scp -i {} httpserver {}@{}:li_huang/httpserver".format(args.i, args.u, replica)
         os.system(copy_command)
 
-        # copy_command = "scp -i {} latencyserver {}@{}:li_huang/latencyserver".format(args.i, args.u, replica)
-        # os.system(copy_command)
-
         copy_command = "scp -i {} pageviews.csv {}@{}:li_huang/pageviews.csv".format(args.i, args.u, replica)
         os.system(copy_command)
 
