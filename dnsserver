@@ -15,6 +15,7 @@ DNS_NODE = {
     "latitude": 40.738731384277344,
     "longitude": -74.19452667236328
 }
+
 try:
     host_file = open("dns-hosts.txt")
     replica_servers = []
@@ -32,10 +33,14 @@ except:
 ####################################################
 
 def get_geoLocation(ip):
+    """
+    Given an ip, return its latitude and longitude.
+    :param ip: an ip address
+    :return: the latitude and longitude of the ip
+    """
     try:
         url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
         response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
-        # response = requests.get(url, auth=('708079', 'xYVsrhhTHs9b0M')).content.decode()
         json_str = json.loads(response)
         latitude = json_str['location']['latitude']
         longitude = json_str['location']['longitude']
@@ -45,6 +50,10 @@ def get_geoLocation(ip):
 
 
 def create_replica_info():
+    """
+    Generate information for each replica in replica_servers.
+    :return: a list contains information for each replica
+    """
     result = []
     for host in replica_servers:
         ip = socket.gethostbyname(host)
@@ -64,6 +73,14 @@ source_ip_list = []
 
 
 def get_geo_distance(lat1, lon1, lat2, lon2):
+    """
+    Given the latitude and longitude of two points, returns the distance between them.
+    :param lat1: latitude for the first point
+    :param lon1: longitude for the first point
+    :param lat2: latitude for the second point
+    :param lon2: longitude for the first point
+    :return: the distance between two points
+    """
     r = abs(lon1 - lon2)
     if r > 180:
         r = 360 - r
@@ -71,7 +88,12 @@ def get_geo_distance(lat1, lon1, lat2, lon2):
     return math.pow(lat1 - lat2, 2) + math.pow(r, 2)
 
 
-def get_nearest_ip(source_ip):
+def get_best_cdn(source_ip):
+    """
+    Get the nearest replica for source_ip
+    :param source_ip: an ip address
+    :return: the nearest replica for source_ip
+    """
     latitude, longitude = get_geoLocation(source_ip)
     if latitude is None or longitude is None:
         return REPLICA_INFO[0]['ip']
@@ -89,17 +111,16 @@ def get_nearest_ip(source_ip):
     return best_cdn
 
 
-def get_best_cdn(source_ip):
-    ip = get_nearest_ip(source_ip)
-
-    return ip
-
-
 ###################################################
 ########## Use scamper to update best ip ##########
 ###################################################
 
 def get_rtt(info):
+    """
+    Get latency time from info
+    :param info: a string
+    :return: the latency time in ms
+    """
     left = info.find("time=")
     right = info.find(" ms")
 
@@ -108,6 +129,12 @@ def get_rtt(info):
 
 
 def active_measurement(source_ip, port):
+    """
+    Find the lowest latency replica server for source ip.
+    :param source_ip: an ip address
+    :param port: the port number each replica connect
+    :return: the ip of the lowest latency replica server for source ip
+    """
     best_rtt = -1
     best_ip = None
 
@@ -130,44 +157,32 @@ def active_measurement(source_ip, port):
                     best_rtt = rtt
                     best_ip = replica["ip"]
         except:
-            # print("XXXXX")
             continue
-
-    # if best_ip is None:
-    #     return REPLICA_INFO[0]["ip"]
 
     return best_ip
 
 
-# aaa = active_measurement("155.33.133.30")
-# print(aaa)
-
-
 def scamper_update(cache, port):
+    """
+    Update the best ip for each source ip in cache every 300 seconds.
+    :param cache: a dictionary, key is source ip, value is the best ip for the source ip
+    :param port: the port number each replica connect
+    :return: nothing.
+    """
     while True:
         try:
             ip_count = len(source_ip_list)
 
             if ip_count == 0:
-                time.sleep(120)
+                time.sleep(300)
                 continue
-
-            # name = str(time.asctime(time.localtime(time.time()))) + ".txt"
-            # file = open(name, 'w')
 
             for i in range(0, ip_count):
                 b_ip = active_measurement(source_ip_list[i], port)
-                # file.write(source_ip_list[i] + "\n")
                 if b_ip is None:
                     continue
-                # file.write("hello")
                 cache[source_ip_list[i]] = b_ip
-                # file.write(str(type(source_ip_list[i])))
-                # file.write(str(type(b_ip)))
-                # file.write(source_ip_list[i] + ": " + b_ip + '\n')
-                # file.write("\n")
 
-            # file.close()
             time.sleep(300)
         except:
             time.sleep(300)
@@ -233,14 +248,10 @@ def main():
             t.start()
         for t in threads:
             t.join()
-        # start(sock, name, cache)
     except:
         pass
     finally:
         sock.close()
-
-    # print(args.n)
-    # print(args.p)
 
 
 main()

@@ -14,11 +14,8 @@ def main():
 
     args = parser.parse_args()
 
-    # build_server = "cs5700cdnproject.ccs.neu.edu"
-    # build_server = "p5-http-a.5700.network"
-
     dns_node = "p5-dns.5700.network"
-    # replica_servers = ["p5-http-b.5700.network"]
+
     try:
         host_file = open("dns-hosts.txt")
         replica_servers = []
@@ -30,8 +27,6 @@ def main():
                            "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
                            "p5-http-g.5700.network"]
 
-    # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver;"'.format(args.i, args.u, dns_node)
-    # os.system(ssh_command)
     print("DNS is running.")
     ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver; ./dnsserver -p {} -n {}" &'.format(args.i,
                                                                                                           args.u,
@@ -41,9 +36,6 @@ def main():
     os.system(ssh_command)
 
     for replica in replica_servers:
-        # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x httpserver"'.format(args.i, args.u, replica, args.p,
-        #                                                                             args.o)
-        # os.system(ssh_command)
         print(replica + " is running.")
 
         ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x httpserver; ./httpserver -p {} -o {}" &'.format(args.i,
@@ -52,13 +44,6 @@ def main():
                                                                                                                 args.p,
                                                                                                                 args.o)
         os.system(ssh_command)
-
-        # ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x latencyserver; ./latencyserver {}" &'.format(args.i,
-        #                                                                                                      args.u,
-        #                                                                                                      replica,
-        #                                                                                                      12345)
-        #
-        # os.system(ssh_command)
 
 
 main()

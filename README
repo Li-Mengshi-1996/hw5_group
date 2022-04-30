@@ -1,27 +1,82 @@
-Mengshi Li: dnsserver, httpserver, deployCDN, runCDN, stopCDN
-Jiansong Huang: mapping.py
+Mengshi Li: build the dns server and the http server, all scripts to deploy/run/stop.
+Jiansong Huang: get the best replica server for each client ip.
 
 High-level approach:
-1. In mapping.py, we create some methods to find the best replica server. We use two methods: best replica based on geo location and best replica based on smallest ping time.
-2. In dnsserver, we create a DNS server that can give back user the ip address of the best replica server.
-3. In httpserver, we create a HTTP server that can fetch content from the original host or from the cache in the server.
+1. In dnsserver, we create a DNS server that can give back user the ip address of the best replica server.
+2. In dnsserver, when we get a client ip for the first time, we will use geolocation to give back the nearest replica server. Then every five minutes, we will use scamper to update the best replica server for each client ip.
+3. In httpserver, we create a HTTP server that can fetch content from the original host or from the cache in the server. Also this server can give back the latency between itself and an ip to the dns server.
 
 DNS server:
 1. We get the port and the name from user's input.
 2. Then we bind the port with 0.0.0.0 and create a socket.
 3. We create a function called start that can run forever until got interrupted. And this is our main part.
 4. In the start, we keep receiving from the socket, each time we receive from the socket, we will build a response.
-5. In the response we build, we will use methods in mapping.py to get the ip address of the best replica server.
+5. In the response we build, we will get the ip address of the best replica server.
 6. After we build the response, we will send it back.
+
+Map ip with replica server:
+1. When we get a client ip for the first time, we will use geolocation to calculate the distance between the client ip and each replica server, then give back the nearest replica server.
+2. For each client ip we have met, we will use scamper to get the latency between it and each replica server. Then we will update the best replica server for each client ip. We do such operations every 300 seconds.
 
 HTTP server:
 1. We get the port and the origin host form user's input.
 2. We create a RequestHandler class from BaseHTTPRequestHandler and a Cache class.
 3. In the Cache class, we create a dictionary cache_dict to store the path and related content, a dictionary freq_dict to store path and related frequency and a PriorityQueue pq to store tuples like (frequency, path).
-4. Each time we want to add something to cache_dict, we will check if the size after adding it is over 20 MB, if not then nothing happens. It it's over 20 MB, then we will remove those contents whose paths frequency are low until the size of cache_dict is less or equal to 20 MB.
+4. Each time we want to add something to cache_dict, we will check if the size after adding it is over 20 MB, if not then nothing happens. It it's over 20 MB, then we will remove those contents whose paths frequency are lower until the size of cache_dict is less or equal to 20 MB.
 5. In RequestHandler class, we overwrite do_GET method, if the path is "/grading/beacon", then we just return with status code 204. If the path is something else, then we will first look up the path in cache_dict, if the path is in cache_dict, we will fetch the content from it and return. If not, we will fetch the content from the original url, try to add the content to cache_dict and return.
 6. We will keep the server running until it's got interrupted.
 
 Challenges:
 1. how to build DNS response.
 2. Create HTTP header in right format.
+
+
+Short report:
+
+1. dns server
+When we build the dns server, besides receiving from client, build response and send back response, there are two design decisions we have made.
+
+The first one is how to get the best replica server for each client ip. When we first get a client ip, we will use geolocation to get the nearest replica server for it. The reason we didn't use scamper is because geolocation is much faster than scamper. Then we add the client ip to source_ip_list to store it. While the dns server is running, we create another thread. In this thread, we will iterate all client ips stored in source_ip_list. For each client ip, we will send a request from the dns server to each replica server with this client ip and use scamper to get the latency between the replica server and the client ip. Then we will set the replica server with the lowest latency as the best http server for this client ip. We will do such iteration and scamper operations every 300 seconds.
+
+To evaluate this decision, we will compare the http latency for each replica server with a fixed client ip. And the experiments shows the replica server we get using the above method has the lowest latency.
+
+Given more time, we will try to find how to get the latency between client ip and replica server more quickly. For now, we can get the latency but it's a little bit slow.
+
+The second decision is we decide to use cache. We use a dictionary to store client ips and the related best replica server. Each time we get a client ip, we will use the first decision to get the corresponding best replica server. Next time when we get the same client ip, we will simply get the best replica server for it from the dictionary.
+
+Here is how we evaluate the decision:
+
+client ip        | dns latency without cache | dns latency with cache |
+15.223.19.203    |           0.165s          |         0.013s         |
+54.207.206.161   |           0.186s          |         0.118s         |
+52.62.170.156    |           0.325s          |         0.212s         |
+54.215.100.111   |           0.159s          |         0.090s         |
+13.234.54.32     |           0.306s          |         0.194s         |
+54.251.196.47    |           0.333s          |         0.242s         |
+
+We can see there are obvious drops in latency for each client ip when using cache.
+
+Given more time, we may consider if we need to monitor the size of the cache in case it grows too large.
+
+2. http server
+When e implement the http server, the design decision decision we made is how we implement the cache.
+
+As it known to us all that the speed of memory is way faster than the speed of disk. So for each replica server, we will store the cache in memory. Every time we get a new path with its content, we will add it in to the cache dictionary and check if it's over 20MB, if not, we will move on. If it's over 20MB, we will remove patches and contents based on the frequency of each path get visited until the size of cache is under 20 MB.
+
+To evaluate the performance of using cache, we do several comparisons and here's the result. (Note that we test these on one own machine without finding the best replica)
+
+p5-http-a.5700.network
+Path       | http latency without cache | http latency with cache |
+/-         |            505ms           |          228ms          |
+/India     |            746ms           |          379ms          |
+/Main_Page |            252ms           |          220ms          |
+
+p5-http-b.5700.network
+Path       | http latency without cache | http latency with cache |
+/-         |            704ms           |          442ms          |
+/India     |            1291ms          |          787ms          |
+/Main_Page |            1118ms          |          440ms          |
+
+We can see there are obvious improvement when using the cache method we implement.
+
+If we have more time, we will try to find a better way to sore pages. Now we sort them by pageviews.csv, we may find a better method.

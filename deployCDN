@@ -14,11 +14,8 @@ def main():
 
     args = parser.parse_args()
 
-    # build_server = "cs5700cdnproject.ccs.neu.edu"
-    # build_server = "p5-http-a.5700.network"
-
     dns_node = "p5-dns.5700.network"
-    # replica_servers = ["p5-http-b.5700.network"]
+
     ssh_command = 'ssh -i {} {}@{} "rm -rf ~/li_huang; mkdir li_huang"'.format(args.i, args.u, dns_node)
     os.system(ssh_command)
 
