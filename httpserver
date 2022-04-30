@@ -98,7 +98,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Length', str(len(content)))
             self.send_header('Connection', 'close')
             self.end_headers()
-            self.wfile.write(content)
+            try:
+                self.wfile.write(content)
+            except:
+                pass
+
             cache.add(self.path, content)
         else:
             self.send_response(200)
@@ -107,7 +111,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Length', str(len(content)))
             self.send_header('Connection', 'close')
             self.end_headers()
-            self.wfile.write(content)
+            try:
+                self.wfile.write(content)
+            except:
+                pass
 
 
 def main():

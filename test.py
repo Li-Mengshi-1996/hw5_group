@@ -106,6 +106,7 @@ def build_response(data):
 # time ; wget http://p5-http-e.5700.network:40004/-
 # time ; wget http://p5-http-f.5700.network:40004/-
 # time ; wget http://p5-http-g.5700.network:40004/-
+# time ; wget http://p5-http-g.5700.network:40004/-
 
 # scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/

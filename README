@@ -22,7 +22,7 @@ HTTP server:
 1. We get the port and the origin host form user's input.
 2. We create a RequestHandler class from BaseHTTPRequestHandler and a Cache class.
 3. In the Cache class, we create a dictionary cache_dict to store the path and related content, a dictionary freq_dict to store path and related frequency and a PriorityQueue pq to store tuples like (frequency, path).
-4. Each time we want to add something to cache_dict, we will check if the size after adding it is over 20 MB, if not then nothing happens. It it's over 20 MB, then we will remove those contents whose paths frequency are lower until the size of cache_dict is less or equal to 20 MB.
+4. Each time we want to add something to cache_dict, we will check if the total size after adding it is over 20 MB, if not then nothing happens. It it's over 20 MB, then we will remove those contents whose paths frequency are lower until the total size is less or equal to 20 MB.
 5. In RequestHandler class, we overwrite do_GET method, if the path is "/grading/beacon", then we just return with status code 204. If the path is something else, then we will first look up the path in cache_dict, if the path is in cache_dict, we will fetch the content from it and return. If not, we will fetch the content from the original url, try to add the content to cache_dict and return.
 6. We will keep the server running until it's got interrupted.
 
@@ -61,7 +61,7 @@ Given more time, we may consider if we need to monitor the size of the cache in 
 2. http server
 When e implement the http server, the design decision decision we made is how we implement the cache.
 
-As it known to us all that the speed of memory is way faster than the speed of disk. So for each replica server, we will store the cache in memory. Every time we get a new path with its content, we will add it in to the cache dictionary and check if it's over 20MB, if not, we will move on. If it's over 20MB, we will remove patches and contents based on the frequency of each path get visited until the size of cache is under 20 MB.
+As it known to us all that the speed of memory is way faster than the speed of disk. So for each replica server, we will store the cache in memory. Every time we get a new path with its content, we will add it in to the cache dictionary and check if the total size is over 20MB, if not, we will move on. If it's over 20MB, we will remove patches and contents based on the frequency of each path get visited until the total size is under 20 MB.
 
 To evaluate the performance of using cache, we do several comparisons and here's the result. (Note that we test these on one own machine without finding the best replica)
 

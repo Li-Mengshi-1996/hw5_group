@@ -24,22 +24,20 @@ import sys
 
 ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 
-
-
-def get_content(port, path):
-    url = "http://" + ORIGIN + ":" + str(port) + path
-    # url = "http://p5-http-b.5700.network:40004/-"
-    req = urllib.request.urlopen(url)
-
-    # print(req.getheaders())
-    # print(req.getheader("Content-Type"))
-    # print(req.getheader("Content-Length"))
-    # print(req.getheader("Last-Modified"))
-    # print(req.getheader("Accept-Ranges"))
-    print(sys.getsizeof(req.read()))
-
-
-get_content(8080, "/Main_Page")
+# def get_content(port, path):
+#     url = "http://" + ORIGIN + ":" + str(port) + path
+#     # url = "http://p5-http-b.5700.network:40004/-"
+#     req = urllib.request.urlopen(url)
+#
+#     # print(req.getheaders())
+#     # print(req.getheader("Content-Type"))
+#     # print(req.getheader("Content-Length"))
+#     # print(req.getheader("Last-Modified"))
+#     # print(req.getheader("Accept-Ranges"))
+#     print(sys.getsizeof(req.read()))
+#
+#
+# get_content(8080, "/Main_Page")
 
 import socket
 
@@ -114,3 +112,27 @@ REPLICA_INFO = [
 #         if i == 25:
 #             break
 
+import threading
+import time
+
+
+def func_1(p1, p2):
+    print("hello")
+    time.sleep(5)
+    print("finish")
+
+
+def func_2(p1, p2):
+    for i in range(0, 20):
+        print(i)
+
+
+threads = []
+threads.append(threading.Thread(target=func_1, args=("", "")))
+threads.append(threading.Thread(target=func_2, args=("", "")))
+
+for t in threads:
+    t.start()
+
+# for t in threads:
+#     t.join()
