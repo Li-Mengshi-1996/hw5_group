@@ -20,13 +20,15 @@ import json
 
 import urllib.request
 from http.client import *
+import sys
 
 ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
 
 
+
 def get_content(port, path):
-    # url = "http://" + ORIGIN + ":" + str(port) + path
-    url = "http://p5-http-b.5700.network:40004/-"
+    url = "http://" + ORIGIN + ":" + str(port) + path
+    # url = "http://p5-http-b.5700.network:40004/-"
     req = urllib.request.urlopen(url)
 
     # print(req.getheaders())
@@ -34,10 +36,10 @@ def get_content(port, path):
     # print(req.getheader("Content-Length"))
     # print(req.getheader("Last-Modified"))
     # print(req.getheader("Accept-Ranges"))
-    print(req.read())
+    print(sys.getsizeof(req.read()))
 
 
-get_content(40004, "/-")
+get_content(8080, "/Main_Page")
 
 import socket
 
@@ -93,3 +95,22 @@ REPLICA_INFO = [
 #
 #     if temp != replica["ip"]:
 #         print(replica)
+
+# file = open("dns-hosts.txt")
+# l = []
+# # print(file.readlines())
+# for line in file.readlines():
+#
+#     l.append(line.strip())
+#
+# print(l)
+# import csv
+# with open('pageviews.csv', newline='') as pages:
+#     lines = csv.reader(pages, delimiter=',')
+#     i = 0
+#     for line in lines:
+#         print("/" + line[0])
+#         i+= 1
+#         if i == 25:
+#             break
+

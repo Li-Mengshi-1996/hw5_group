@@ -15,10 +15,16 @@ DNS_NODE = {
     "latitude": 40.738731384277344,
     "longitude": -74.19452667236328
 }
-
-replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
-                   "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
-                   "p5-http-g.5700.network"]
+try:
+    host_file = open("dns-hosts.txt")
+    replica_servers = []
+    for line in host_file.readlines():
+        replica_servers.append(line.strip())
+    host_file.close()
+except:
+    replica_servers = ["p5-http-a.5700.network", "p5-http-b.5700.network", "p5-http-c.5700.network",
+                       "p5-http-d.5700.network", "p5-http-e.5700.network", "p5-http-f.5700.network",
+                       "p5-http-g.5700.network"]
 
 
 ####################################################
@@ -29,6 +35,7 @@ def get_geoLocation(ip):
     try:
         url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
         response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+        # response = requests.get(url, auth=('708079', 'xYVsrhhTHs9b0M')).content.decode()
         json_str = json.loads(response)
         latitude = json_str['location']['latitude']
         longitude = json_str['location']['longitude']
@@ -100,7 +107,7 @@ def get_rtt(info):
     return float(rtt)
 
 
-def active_measurement(source_ip):
+def active_measurement(source_ip, port):
     best_rtt = -1
     best_ip = None
 
@@ -108,7 +115,7 @@ def active_measurement(source_ip):
         host = replica['host']
 
         try:
-            url = "http://{}:40004/li_huang/{}".format(host, source_ip)
+            url = "http://{}:{}/li_huang/{}".format(host, str(port), source_ip)
             req = urllib.request.urlopen(url)
             data = req.read().decode()
             # print(data)
@@ -136,7 +143,7 @@ def active_measurement(source_ip):
 # print(aaa)
 
 
-def scamper_update(cache, msg):
+def scamper_update(cache, port):
     while True:
         try:
             ip_count = len(source_ip_list)
@@ -145,22 +152,22 @@ def scamper_update(cache, msg):
                 time.sleep(120)
                 continue
 
-            name = str(time.asctime(time.localtime(time.time()))) + ".txt"
-            file = open(name, 'w')
+            # name = str(time.asctime(time.localtime(time.time()))) + ".txt"
+            # file = open(name, 'w')
 
             for i in range(0, ip_count):
-                b_ip = active_measurement(source_ip_list[i])
-                file.write(source_ip_list[i] + "\n")
+                b_ip = active_measurement(source_ip_list[i], port)
+                # file.write(source_ip_list[i] + "\n")
                 if b_ip is None:
                     continue
                 # file.write("hello")
                 cache[source_ip_list[i]] = b_ip
                 # file.write(str(type(source_ip_list[i])))
                 # file.write(str(type(b_ip)))
-                file.write(source_ip_list[i] + ": " + b_ip + '\n')
+                # file.write(source_ip_list[i] + ": " + b_ip + '\n')
                 # file.write("\n")
 
-            file.close()
+            # file.close()
             time.sleep(300)
         except:
             time.sleep(300)
@@ -219,7 +226,7 @@ def main():
 
     threads = []
     threads.append(threading.Thread(target=start, args=(sock, name, cache)))
-    threads.append(threading.Thread(target=scamper_update, args=(cache, "")))
+    threads.append(threading.Thread(target=scamper_update, args=(cache, port)))
 
     try:
         for t in threads:
@@ -234,5 +241,6 @@ def main():
 
     # print(args.n)
     # print(args.p)
+
 
 main()

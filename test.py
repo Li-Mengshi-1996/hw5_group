@@ -100,8 +100,12 @@ def build_response(data):
 
 # dig @45.33.90.91 -p 40004 cs5700cdn.example.com
 # time ; wget http://p5-http-a.5700.network:40004/-
-# time ; wget http://p5-http-a.5700.network:40004/grading/beacon
+# time ; wget http://p5-http-b.5700.network:40004/-
+# time ; wget http://p5-http-c.5700.network:40004/-
 # time ; wget http://p5-http-d.5700.network:40004/-
+# time ; wget http://p5-http-e.5700.network:40004/-
+# time ; wget http://p5-http-f.5700.network:40004/-
+# time ; wget http://p5-http-g.5700.network:40004/-
 
 # scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
@@ -109,18 +113,21 @@ def build_response(data):
 # scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/dns-hosts.txt mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+
 # scp ~/.ssh/id_ed25519 mengshi@cs5700cdnproject.ccs.neu.edu:~/.ssh/id_ed25519
 
 # scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 
 
 # scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/dns-hosts.txt mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/dnsserver mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/httpserver mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
-# scp /Users/mengshi/Desktop/5700/hw5/mapping.py mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/pageviews.csv mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
+
 # scp /Users/mengshi/Desktop/5700/hw5/Makefile mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/README mengshi@login.khoury.northeastern.edu:/home/mengshi/CS5700/hw5/
 
