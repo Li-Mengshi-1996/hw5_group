@@ -127,12 +127,36 @@ def func_2(p1, p2):
         print(i)
 
 
-threads = []
-threads.append(threading.Thread(target=func_1, args=("", "")))
-threads.append(threading.Thread(target=func_2, args=("", "")))
-
-for t in threads:
-    t.start()
+# threads = []
+# threads.append(threading.Thread(target=func_1, args=("", "")))
+# threads.append(threading.Thread(target=func_2, args=("", "")))
+#
+# for t in threads:
+#     t.start()
 
 # for t in threads:
 #     t.join()
+
+# print(bytes("abc"))
+
+# f = open("t.txt", 'a+')
+# f.write("hello/n")
+# f.close()
+#
+# f = open("t.txt", 'a+')
+# f.write("hello/n")
+# f.close()
+
+import requests
+
+# ip = '54.251.196.47'
+# ip = '13.234.54.32'
+# ip = '172.105.55.115'
+ip = '194.195.121.150'
+url = ('https://geolite.info/geoip/v2.1/city/' + ip + '?pretty')
+response = requests.get(url, auth=('708079', 'xYVsrhhTQiHs9b0M')).content.decode()
+json_str = json.loads(response)
+#
+print(json_str)
+t = (1,2)
+print(str(t))

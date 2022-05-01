@@ -1,5 +1,6 @@
 from dnslib import *
 
+
 def build_response(data):
     request = DNSRecord.parse(data)
     reply = DNSRecord(DNSHeader(id=request.header.id,
@@ -21,6 +22,7 @@ def build_response(data):
     #         reply.add_answer(RR(rname=qname, rtype=QTYPE.A, rclass=1, ttl=300, rdata=A(ip)))
     #
     # return reply.pack()
+
 
 # packet = binascii.unhexlify(b'd5ad818000010005000000000377777706676f6f676c6503636f6d0000010001c00c0005000100000005000803777777016cc010c02c0001000100000005000442f95b68c02c0001000100000005000442f95b63c02c0001000100000005000442f95b67c02c0001000100000005000442f95b93')
 #
@@ -96,8 +98,31 @@ def create_replica_info():
 # for replica in REPLICA_INFO:
 #     print(replica)
 
-import ipaddress
+# import ipaddress
+#
+# print(ipaddress.ip_address("50.116.41.109"))
+# print(list(ipaddress.ip_network("50.116.32.0/20").hosts()))
+import requests
+import time
 
-print(ipaddress.ip_address("50.116.41.109"))
-print(list(ipaddress.ip_network("50.116.32.0/20").hosts()))
+import urllib.request
 
+ORIGIN = "cs5700cdnorigin.ccs.neu.edu"
+
+
+def get_content(port, path):
+    try:
+        url = "http://" + ORIGIN + ":" + str(port) + path
+
+        req = requests.get(url).content
+        # req = urllib.request.urlopen(url).read()
+
+        return req
+    except:
+        return b''
+
+
+t1 = time.time()
+print(get_content(8080, '/Doja_Cat')[0:20])
+t2 = time.time()
+print(t2 - t1)

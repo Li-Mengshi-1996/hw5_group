@@ -15,7 +15,6 @@ DNS_NODE = {
     "latitude": 40.738731384277344,
     "longitude": -74.19452667236328
 }
-
 try:
     host_file = open("dns-hosts.txt")
     replica_servers = []
@@ -145,7 +144,6 @@ def active_measurement(source_ip, port):
             url = "http://{}:{}/li_huang/{}".format(host, str(port), source_ip)
             req = urllib.request.urlopen(url)
             data = req.read().decode()
-            # print(data)
 
             rtt = get_rtt(data)
 
@@ -205,6 +203,7 @@ def build_response(data, addr, domain, cache):
         if addr[0] not in cache.keys():
             cache[addr[0]] = get_best_cdn(addr[0])
             source_ip_list.append(addr[0])
+
         ip = cache[addr[0]]
         reply.add_answer(RR(rname=request.q.qname, rtype=QTYPE.A, ttl=300, rdata=A(ip)))
 
@@ -251,6 +250,10 @@ def main():
     except:
         pass
     finally:
+        t_file = open("result.txt", "a+")
+        t_file.write("FINISH\n")
+
+        t_file.close()
         sock.close()
 
 
