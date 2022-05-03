@@ -55,7 +55,11 @@ def create_replica_info():
     """
     result = []
     for host in replica_servers:
-        ip = socket.gethostbyname(host)
+        try:
+            ip = socket.gethostbyname(host)
+        except:
+            print(host + " has ERRORS")
+            continue
         lat, lon = get_geoLocation(ip)
         if lat is None or lon is None:
             lat = 0
@@ -192,6 +196,14 @@ def scamper_update(cache, port):
 ################################
 
 def build_response(data, addr, domain, cache):
+    """
+    Build response for dns requests.
+    :param data: data we get from request
+    :param addr: the address of the request
+    :param domain: the domain of the request (cs5700cdn.example.com)
+    :param cache: a dictionary to store client ip and related best replica server ip
+    :return: a response can be handled by dig command
+    """
     domain = domain + "."
     request = DNSRecord.parse(data)
     reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
@@ -211,6 +223,11 @@ def build_response(data, addr, domain, cache):
 
 
 def receive(sock):
+    """
+    Receive requests from clients.
+    :param sock: a socket that enables receive
+    :return: the information and the address of the request
+    """
     result = b''
     addr = None
     while True:
@@ -223,6 +240,13 @@ def receive(sock):
 
 
 def start(sock, domain, cache):
+    """
+    Start the dns server.
+    :param sock: a socket that enables receive and send
+    :param domain: the domain of the request (cs5700cdn.example.com)
+    :param cache: a dictionary to store client ip and related best replica server ip
+    :return: nothing
+    """
     while True:
         data, address = receive(sock)
         response = build_response(data, address, domain, cache)
@@ -250,10 +274,6 @@ def main():
     except:
         pass
     finally:
-        t_file = open("result.txt", "a+")
-        t_file.write("FINISH\n")
-
-        t_file.close()
         sock.close()
 
 

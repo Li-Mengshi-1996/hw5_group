@@ -130,6 +130,7 @@ def build_response(data):
 # scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 # scp /Users/mengshi/Desktop/5700/hw5/dns-hosts.txt mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
+# scp /Users/mengshi/Desktop/5700/hw5/Makefile mengshi@cs5700cdnproject.ccs.neu.edu:/home/mengshi/CS5700/hw5/
 
 # scp ~/.ssh/id_ed25519 mengshi@cs5700cdnproject.ccs.neu.edu:~/.ssh/id_ed25519
 
@@ -166,3 +167,10 @@ def build_response(data):
 # /course/cs5700sp22/bin/gradesheet
 
 # scamper -c "ping -i 1 -c 1" -i 155.33.133.30
+
+
+# scp /Users/mengshi/Desktop/5700/hw5/deployCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/test/
+# scp /Users/mengshi/Desktop/5700/hw5/runCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/test/
+# scp /Users/mengshi/Desktop/5700/hw5/stopCDN mengshi@login.khoury.northeastern.edu:/home/mengshi/test/
+
+# scp /Users/mengshi/Desktop/5700/hw5/Makefile mengshi@login.khoury.northeastern.edu:/home/mengshi/test/

@@ -19,6 +19,12 @@ class Cache:
         self.pq = PriorityQueue()
 
     def add(self, path, content):
+        """
+        Add content to cache and check the total size of the cache.
+        :param path: the path of the content
+        :param content: the actual content
+        :return: nothing
+        """
         self.cache_dict[path] = content
         self.current += sys.getsizeof(content)
 
@@ -38,12 +44,21 @@ class Cache:
             return
 
     def get(self, path):
+        """
+        Get the content of the path.
+        :param path: the path related to the content
+        :return: if we have cached the content, return the content, otherwise return none.
+        """
         if path in self.cache_dict.keys():
             return self.cache_dict[path]
         else:
             return None
 
     def init_freq(self):
+        """
+        Generate a dictionary the store each path in pageviews.csv and the corresponding frequency.
+        :return: a dictionary the store each path in pageviews.csv and the corresponding frequency
+        """
         result = dict()
 
         with open('pageviews.csv', newline='') as pages:
@@ -60,6 +75,12 @@ cache = Cache()
 
 
 def get_content(port, path):
+    """
+    Get content from the origin server.
+    :param port: the port number of the origin server
+    :param path: the path specifies what content to get
+    :return: the content related to the path
+    """
     try:
         url = "http://" + ORIGIN + ":" + str(port) + path
         return requests.get(url).content
@@ -72,6 +93,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
+        """
+        Handle the GET request.
+        :return: nothing
+        """
         if self.path == "/grading/beacon":
             self.send_response(204)
             self.send_header('Content-Type', 'text/html')
@@ -84,6 +109,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             ip = temp.replace("/li_huang/", "")
             command = "scamper -c 'ping -c 1 -i 1' -i {}".format(ip)
             result = os.popen(command).read()
+            os.wait()
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
             self.end_headers()

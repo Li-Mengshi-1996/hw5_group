@@ -22,6 +22,9 @@ def main():
     copy_command = "scp -i {} dnsserver {}@{}:li_huang/dnsserver".format(args.i, args.u, dns_node)
     os.system(copy_command)
 
+    ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x dnsserver"'.format(args.i, args.u, dns_node)
+    os.system(ssh_command)
+
     try:
         host_file = open("dns-hosts.txt")
         replica_servers = []
@@ -45,6 +48,10 @@ def main():
 
         copy_command = "scp -i {} pageviews.csv {}@{}:li_huang/pageviews.csv".format(args.i, args.u, replica)
         os.system(copy_command)
+
+        ssh_command = 'ssh -i {} {}@{} "cd ~/li_huang; chmod +x httpserver"'.format(args.i, args.u, replica, args.p,
+                                                                                    args.o)
+        os.system(ssh_command)
 
 
 main()
